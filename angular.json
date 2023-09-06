@@ -17,7 +17,6 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "port": 8080,
             "outputPath": "dist/editor-app",
             "index": "src/index.html",
             "main": "src/main.ts",
@@ -72,7 +71,10 @@
               "browserTarget": "EditorApp:build:development"
             }
           },
-          "defaultConfiguration": "development"
+          "defaultConfiguration": "development",
+          "options": {
+            "port": 8080
+          }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
