@@ -38,16 +38,16 @@ export class EditorComponent {
 
   async initWebGL() {
     this.glService.init(this.canvasRef);
-    // this.shaderService.init(
-    //   await this.loadFile.getFile("/assets/shader.vs.glsl").toPromise(),
-    //   await this.loadFile.getFile("/assets/shader.fs.glsl").toPromise()
-    // );
+    this.shaderService.init(
+      await this.loadFile.getFile("/assets/shader.vs.glsl").toPromise(),
+      await this.loadFile.getFile("/assets/shader.fs.glsl").toPromise()
+    );
 
-    // this.glService.gl?.clearColor(0.75, 0.85, 0.8, 1.0);
-    // this.glService.gl?.clear(this.glService.gl.COLOR_BUFFER_BIT | this.glService.gl.DEPTH_BUFFER_BIT);
+    this.glService.gl?.clearColor(0.75, 0.85, 0.8, 1.0);
+    this.glService.gl?.clear(this.glService.gl.COLOR_BUFFER_BIT | this.glService.gl.DEPTH_BUFFER_BIT);
 
-    // this.glService.gl?.enable(this.glService.gl?.DEPTH_TEST);
-    // const loader = new GLTFLoader();
+    this.glService.gl?.enable(this.glService.gl?.DEPTH_TEST);
+    const loader = new GLTFLoader();
     // loader.load('assets/test.glb', (gltf) => {
     //   const model = gltf.scene;
 
