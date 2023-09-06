@@ -7,7 +7,7 @@ import { OpenglService } from './service/opengl.service';
 import { LoadFileService } from './service/load-file.service';
 import { CameraService } from './service/camera.service';
 import * as THREE from "three";
-
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 @Component({
   selector: 'app-editor',
   templateUrl: './editor.component.html',
