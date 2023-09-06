@@ -6,8 +6,8 @@ import { ShaderService } from './service/shader.service';
 import { OpenglService } from './service/opengl.service';
 import { LoadFileService } from './service/load-file.service';
 import { CameraService } from './service/camera.service';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import * as THREE from "three";
+
 @Component({
   selector: 'app-editor',
   templateUrl: './editor.component.html',
