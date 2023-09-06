@@ -18,7 +18,8 @@ export class EditorComponent {
   colorAttribLocation: any;
   program: any;
   meshs: Mesh[] = [];
-  textre!: Texture;
+  textre!: Texture; 
+  loader: any;
   @ViewChild('myCanvas', { static: true }) canvasRef!: ElementRef;
 
   constructor(
@@ -32,6 +33,7 @@ export class EditorComponent {
   ngOnInit(): void { }
 
   ngAfterViewInit(): void {
+    this.loader = new GLTFLoader();
     this.initWebGL();
     this.render();
   }
@@ -47,7 +49,7 @@ export class EditorComponent {
     this.glService.gl?.clear(this.glService.gl.COLOR_BUFFER_BIT | this.glService.gl.DEPTH_BUFFER_BIT);
 
     this.glService.gl?.enable(this.glService.gl?.DEPTH_TEST);
- //   const loader = new GLTFLoader();
+    //   const
     // loader.load('assets/test.glb', (gltf) => {
     //   const model = gltf.scene;
 
