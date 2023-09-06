@@ -6,11 +6,13 @@ import { AppComponent } from './app.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { EditorModule } from './editor/editor.module';
 import { HomeComponent } from './app/home/home.component';
+import { AppPageComponent } from './app/app-page/app-page.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    HomeComponent
+    HomeComponent,
+    AppPageComponent
   ],
   imports: [
     BrowserModule,

@@ -3,7 +3,7 @@
   style="box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px"
 >
   <div class="container-fluid">
-    <a class="navbar-brand mb-0 h1" routerLink="editor">Editor</a>
+    <a class="navbar-brand mb-0 h1" routerLink="">Editor</a>
     <button
       class="navbar-toggler"
       type="button"
@@ -18,10 +18,20 @@
     <div class="collapse navbar-collapse" id="navbarText">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="#">Home</a>
+          <a class="nav-link active" aria-current="page" routerLink="">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" routerLink="application"
+            >Applications</a
+          >
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" routerLink="editor"
+            >Editor</a
+          >
         </li>
       </ul>
-      <span class="navbar-text"> Navbar text with an inline element </span>
+      <span class="navbar-text"> </span>
     </div>
   </div>
 </nav>
