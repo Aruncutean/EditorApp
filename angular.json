@@ -17,7 +17,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "max_old_space_size": 8048,
+         
             "outputPath": "dist/editor-app",
             "index": "src/index.html",
             "main": "src/main.ts",
@@ -101,5 +101,8 @@
         }
       }
     }
+  },
+  "cli": {
+    "analytics": "e2ebed0a-b12b-4cb3-be6f-53effa89c1bb"
   }
 }
