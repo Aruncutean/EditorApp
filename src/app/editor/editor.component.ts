@@ -33,7 +33,7 @@ export class EditorComponent {
   ngOnInit(): void { }
 
   ngAfterViewInit(): void {
-  //  this.loader = new GLTFLoader();
+  //  
     this.initWebGL();
     this.render();
   }
@@ -49,7 +49,7 @@ export class EditorComponent {
     this.glService.gl?.clear(this.glService.gl.COLOR_BUFFER_BIT | this.glService.gl.DEPTH_BUFFER_BIT);
 
     this.glService.gl?.enable(this.glService.gl?.DEPTH_TEST);
-    //   const
+    this.loader = new GLTFLoader();
     // loader.load('assets/test.glb', (gltf) => {
     //   const model = gltf.scene;
 
@@ -71,6 +71,8 @@ export class EditorComponent {
 
     // });
   }
+
+  click1(){this.loader = new GLTFLoader();}
 
   render(): void {
     this.glService.gl?.clearColor(0.75, 0.8, 0.8, 1.0);
