@@ -33,7 +33,7 @@ export class EditorComponent {
   ngOnInit(): void { }
 
   ngAfterViewInit(): void {
-    this.loader = new GLTFLoader();
+  //  this.loader = new GLTFLoader();
     this.initWebGL();
     this.render();
   }
