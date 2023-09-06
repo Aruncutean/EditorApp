@@ -47,7 +47,7 @@ export class EditorComponent {
     this.glService.gl?.clear(this.glService.gl.COLOR_BUFFER_BIT | this.glService.gl.DEPTH_BUFFER_BIT);
 
     this.glService.gl?.enable(this.glService.gl?.DEPTH_TEST);
-    const loader = new GLTFLoader();
+ //   const loader = new GLTFLoader();
     // loader.load('assets/test.glb', (gltf) => {
     //   const model = gltf.scene;
 
