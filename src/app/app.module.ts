@@ -8,20 +8,22 @@ import { EditorModule } from './editor/editor.module';
 import { HomeComponent } from './app/home/home.component';
 import { AppPageComponent } from './app/app-page/app-page.component';
 import { HttpClientModule } from '@angular/common/http';
+import { IconModule } from './icon/icon.module';
 
 @NgModule({
   declarations: [
     AppComponent,
     HomeComponent,
     AppPageComponent,
- 
+
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
     NgbModule,
-    EditorModule
+    EditorModule,
+    IconModule
   ],
   providers: [],
   bootstrap: [AppComponent]

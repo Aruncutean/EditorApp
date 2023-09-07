@@ -1,2 +1,13 @@
-<canvas id="myCanvas" #myCanvas width="800" height="600"></canvas>
-<button class="btn">OK</button>
+<div
+  style="
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-content: flex-start;
+    overflow: hidden;
+  "
+>
+  <div><app-left-editor></app-left-editor></div>
+  <div><canvas id="myCanvas" #myCanvas width="800" height="600"></canvas></div>
+  <div style="width: 50px; height: 100%; background-color: cadetblue"></div>
+</div>

@@ -49,7 +49,7 @@ export class EditorComponent {
     this.glService.gl?.clear(this.glService.gl.COLOR_BUFFER_BIT | this.glService.gl.DEPTH_BUFFER_BIT);
 
     this.glService.gl?.enable(this.glService.gl?.DEPTH_TEST);
-   
+
     this.loader = new GLTFLoader();
     this.loader && this.loader.load('assets/test.glb', (gltf: { scene: any; }) => {
       const model = gltf.scene;
@@ -67,9 +67,7 @@ export class EditorComponent {
         mesh && this.meshs.push(mesh);
         mesh && (mesh.poz = _.position);
         this.textre = new Texture("assets/test.png", this.glService);
-
       })
-
     });
   }
 
