@@ -1,0 +1,26 @@
+.leftEditor {
+    width: 60px;
+    height: calc(100vh - 80px);
+    border-radius: 10px;
+    margin: 10px;
+    background-color: #223c55;
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: center;
+    transition: 0.5s;
+}
+
+
+.leftEditorOpen {
+    border-radius: 0;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+    transition: 0.5s;
+}
+
+.leftEditorSplider {
+    width: 150px;
+    transition: 0.5s;
+}

@@ -1,18 +1,14 @@
-<div
-  style="
-    width: 60px;
-    height: calc(100vh - 80px);
-    border-radius: 10px;
-    margin: 10px;
-    background-color: #223c55;
-    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
-    display: flex;
-    flex-direction: column;
-    flex-wrap: nowrap;
-    align-items: center;
-  "
->
-  <ng-container *ngFor="let item of items">
-    <app-item [config]="item" (clickEmitter)="itemCallBack($event)"></app-item>
-  </ng-container>
+<div class="leftEditor" [style.width.px]="isOpen ? 219 : 60">
+  <div style="display: flex">
+    <div>
+      <ng-container *ngFor="let item of items">
+        <app-item
+          [config]="item"
+          [isSelected]="itemSelected == item.name"
+          (clickEmitter)="itemCallBack($event)"
+        ></app-item>
+      </ng-container>
+    </div>
+    <div class="leftEditorSplider" [style.width.px]="isOpen ? 150 : 0"></div>
+  </div>
 </div>

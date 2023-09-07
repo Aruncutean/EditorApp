@@ -7,17 +7,22 @@ import { AfterViewInit, Component, OnInit } from '@angular/core';
 })
 export class LeftEditorComponent implements OnInit, AfterViewInit {
 
-  items: any = [{
-    name: "cub",
-    icon: "cub",
-  }, {
-    name: "coordinates",
-    icon: "coordinates"
-  }, {
-    name: "foreground",
-    icon: "foreground"
-  }];
-
+  items: any = [
+    {
+      name: "cub",
+      icon: "cub",
+    },
+    {
+      name: "coordinates",
+      icon: "coordinates"
+    },
+    {
+      name: "foreground",
+      icon: "foreground"
+    }
+  ];
+  isOpen: boolean = false;
+  itemSelected!: string;
   constructor() {
 
   }
@@ -29,7 +34,13 @@ export class LeftEditorComponent implements OnInit, AfterViewInit {
   }
 
   itemCallBack(val: any) {
-    let t = val;
+    if (val != this.itemSelected) {
+      this.itemSelected = val;
+      this.isOpen = true;
+    } else {
+      this.itemSelected = "";
+      this.isOpen = false;
+    }
   }
 
 }

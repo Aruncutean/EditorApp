@@ -11,7 +11,9 @@ import { ForegroundComponent } from 'src/app/icon/foreground.component';
 export class ItemComponent implements OnInit, AfterViewInit {
 
   @Input() config: any;
+  @Input() isSelected!: boolean;
   @Output() clickEmitter = new EventEmitter<any>()
+
   @ViewChild('iconContainer', { read: ViewContainerRef, static: true }) iconContainerRef!: ViewContainerRef;
 
   constructor(private resolver: ComponentFactoryResolver) {
