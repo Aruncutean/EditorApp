@@ -71,7 +71,7 @@ export class Mesh {
         var ve: vec3 = [0, 0, 0];
         vec3.add(ve, camera.cameraPos, camera.cameraFront);
         mat4.lookAt(this.viewMatrix, camera.cameraPos, ve, camera.cameraUp);
-        mat4.perspective(this.projMatrix, glMatrix.toRadian(45), 800 / 600, 0.1, 1000.0);
+        mat4.perspective(this.projMatrix, glMatrix.toRadian(45), 1200 / 600, 0.1, 1000.0);
 
         this.glService.gl?.enableVertexAttribArray(0);
         this.glService.gl?.enableVertexAttribArray(1);

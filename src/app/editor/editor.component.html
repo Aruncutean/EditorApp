@@ -1,13 +1,21 @@
 <div
-  style="
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    align-content: flex-start;
-    overflow: hidden;
-  "
+  style="width: 100vw; display: inline-grid; transition: 0.5s; overflow: hidden"
+  [style.grid-template-columns]="isOpen ? '240px auto 15%' : '80px auto 15%'"
 >
-  <div><app-left-editor></app-left-editor></div>
-  <div><canvas id="myCanvas" #myCanvas width="1200" height="600"></canvas></div>
-  <div style="width: 50px; height: 100%; background-color: cadetblue"></div>
+  <div>
+    <app-left-editor (isOpenEmitter)="isOpenF($event)"></app-left-editor>
+  </div>
+  <div #test>
+    <canvas
+      id="myCanvas"
+      #myCanvas
+      style="
+        width: 100%;
+        margin-top: 10px;
+        height: calc(100vh - 80px);
+        border-radius: 10px;
+      "
+    ></canvas>
+  </div>
+  <div class="rightBar"></div>
 </div>

@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, OnInit, Output } from '@angular/core';
 
 @Component({
   selector: 'app-left-editor',
@@ -7,6 +7,7 @@ import { AfterViewInit, Component, OnInit } from '@angular/core';
 })
 export class LeftEditorComponent implements OnInit, AfterViewInit {
 
+  @Output() isOpenEmitter = new EventEmitter<boolean>()
   items: any = [
     {
       name: "cub",
@@ -41,6 +42,7 @@ export class LeftEditorComponent implements OnInit, AfterViewInit {
       this.itemSelected = "";
       this.isOpen = false;
     }
+    this.isOpenEmitter.emit(this.isOpen);
   }
 
 }

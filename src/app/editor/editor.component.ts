@@ -20,25 +20,32 @@ export class EditorComponent {
   meshs: Mesh[] = [];
   textre!: Texture;
   loader: any;
+  isOpen: boolean = false;
   @ViewChild('myCanvas', { static: true }) canvasRef!: ElementRef;
+  @ViewChild('test', { static: true }) testRef!: ElementRef;
 
+  value: string = "80px auto 30%";
   constructor(
     private shaderService: ShaderService,
     private glService: OpenglService,
     private loadFile: LoadFileService,
-    private camera: CameraService) {
+    private camera: CameraService
+  ) {
 
   }
 
   ngOnInit(): void { }
 
   ngAfterViewInit(): void {
-    //  
+    this.testRef.nativeElement.clientWidth
+
     this.initWebGL();
     this.render();
   }
 
   async initWebGL() {
+    this.canvasRef.nativeElement.width = 1200;//this.testRef.nativeElement.clientWidth;
+    this.canvasRef.nativeElement.height = 600;//this.testRef.nativeElement.clienteight;
     this.glService.init(this.canvasRef);
     this.shaderService.init(
       await this.loadFile.getFile("/assets/shader.vs.glsl").toPromise(),
@@ -71,7 +78,16 @@ export class EditorComponent {
     });
   }
 
-
+  isOpenF(val: boolean) {
+    this.isOpen = val;
+    if (val == true) {
+      this.value = "180px auto 30%"
+    } else {
+      this.value = "80px auto 30%"
+    }
+    this.canvasRef.nativeElement.width = 1200;
+    this.canvasRef.nativeElement.height = 600;
+  }
 
   render(): void {
     this.glService.gl?.clearColor(0.75, 0.8, 0.8, 1.0);

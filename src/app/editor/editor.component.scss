@@ -1,0 +1,15 @@
+.canva {
+    transition: 0.5s;
+    width: 1000px;
+    height: calc(100vh - 80px);
+    border-radius: 10px;
+    margin-top: 10px;
+}
+
+.rightBar {
+    height: calc(100vh - 80px);
+    background-color: #223c55;
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+    margin: 10px;
+    border-radius: 10px;
+}
