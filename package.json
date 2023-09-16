@@ -8,21 +8,22 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "build-prod": "node --max_old_space_size=1024 ./node_modules/@angular/cli/bin/ng build --prod"
-
-
   },
   "private": true,
   "dependencies": {
     "@angular/animations": "^16.1.0",
+    "@angular/cdk": "^16.2.4",
     "@angular/common": "^16.1.0",
     "@angular/compiler": "^16.1.0",
     "@angular/core": "^16.1.0",
     "@angular/forms": "^16.1.0",
+    "@angular/material": "^16.2.4",
     "@angular/platform-browser": "^16.1.0",
     "@angular/platform-browser-dynamic": "^16.1.0",
     "@angular/router": "^16.1.0",
     "@ng-bootstrap/ng-bootstrap": "^15.1.1",
     "@popperjs/core": "^2.11.6",
+    "angular-split": "^16.2.1",
     "bootstrap": "^5.2.3",
     "bootstrap-icons": "^1.10.5",
     "gl-matrix": "^3.4.3",

@@ -1,21 +1,24 @@
-<div
-  style="width: 100vw; display: inline-grid; transition: 0.5s; overflow: hidden"
-  [style.grid-template-columns]="isOpen ? '240px auto 15%' : '80px auto 15%'"
->
-  <div>
-    <app-left-editor (isOpenEmitter)="isOpenF($event)"></app-left-editor>
-  </div>
-  <div #test>
-    <canvas
-      id="myCanvas"
-      #myCanvas
-      style="
-        width: 100%;
-        margin-top: 10px;
-        height: calc(100vh - 80px);
-        border-radius: 10px;
-      "
-    ></canvas>
-  </div>
-  <div class="rightBar"></div>
+<div style="height: 500px; height: calc(100vh - 60px)">
+  <as-split direction="horizontal">
+    <as-split-area [size]="70" style="overflow: unset">
+      <div style="overflow: unset">
+        <canvas
+          id="myCanvas"
+          #myCanvas
+          style="width: 100%; height: calc(100vh - 60px)"
+        >
+        </canvas>
+      </div>
+    </as-split-area>
+    <as-split-area [size]="30" style="overflow: unset">
+      <div class="rightBar" style="overflow: unset">
+        <as-split direction="vertical">
+          <as-split-area
+            ><app-list-object style="background-color: white"></app-list-object
+          ></as-split-area>
+          <as-split-area><app-editor-object></app-editor-object></as-split-area>
+        </as-split>
+      </div>
+    </as-split-area>
+  </as-split>
 </div>

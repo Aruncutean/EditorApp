@@ -1,0 +1,31 @@
+<div
+  style="
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+
+    height: 100%;
+    flex-wrap: nowrap;
+  "
+>
+  <div style="width: 40px; height: 100%">
+    <ul>
+      <li><cub-tab-icon style="color: white" /></li>
+      <li>Tea</li>
+      <li>Milk</li>
+    </ul>
+  </div>
+  <div style="width: 100%; height: 100%; background-color: #313131">
+    <mat-accordion>
+      <mat-expansion-panel
+        (opened)="panelOpenState = true"
+        (closed)="panelOpenState = false"
+      >
+        <mat-expansion-panel-header>
+          <mat-panel-title> Transformat </mat-panel-title>
+        </mat-expansion-panel-header>
+        <p>I'm visible because I am open</p>
+      </mat-expansion-panel>
+    </mat-accordion>
+  </div>
+</div>

@@ -4,6 +4,7 @@ import { CubComponent } from './cub.component';
 import { CoordinatesComponent } from './coordinates.component';
 import { ForegroundComponent } from './foreground.component';
 import { IconInterface } from './icon.terface';
+import { CubTabComponent } from './cubTab.component';
 
 
 @NgModule({
@@ -11,7 +12,7 @@ import { IconInterface } from './icon.terface';
         CubComponent,
         CoordinatesComponent,
         ForegroundComponent,
-
+        CubTabComponent,
     ],
     imports: [
         CommonModule
@@ -19,7 +20,8 @@ import { IconInterface } from './icon.terface';
     exports: [
         CubComponent,
         CoordinatesComponent,
-        ForegroundComponent
+        ForegroundComponent,
+        CubTabComponent
     ]
 })
 export class IconModule { }

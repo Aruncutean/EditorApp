@@ -51,5 +51,24 @@ export class CameraService {
   }
 
 
+  moveRight() {
+    var cameraSpeed = 1;
+    var v: vec3 = [0, 0, 0];
+    vec3.copy(v, this.cameraFront);
+    vec3.cross(v, v, this.cameraUp);
+    vec3.normalize(v, v);
+    vec3.multiply(v, v, [cameraSpeed, cameraSpeed, cameraSpeed]);
+    vec3.add(this.cameraPos, this.cameraPos, v);
+  }
+
+  moveLeft() {
+    var cameraSpeed = 1;
+    var v: vec3 = [0, 0, 0];
+    vec3.copy(v, this.cameraFront);
+    vec3.cross(v, v, this.cameraUp);
+    vec3.normalize(v, v);
+    vec3.multiply(v, v, [cameraSpeed, cameraSpeed, cameraSpeed]);
+    vec3.sub(this.cameraPos, this.cameraPos, v);
+  }
 
 }

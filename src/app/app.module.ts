@@ -9,21 +9,23 @@ import { HomeComponent } from './app/home/home.component';
 import { AppPageComponent } from './app/app-page/app-page.component';
 import { HttpClientModule } from '@angular/common/http';
 import { IconModule } from './icon/icon.module';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+
 
 @NgModule({
   declarations: [
     AppComponent,
     HomeComponent,
     AppPageComponent,
-
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
-    NgbModule,
+    IconModule,
+    BrowserAnimationsModule,
     EditorModule,
-    IconModule
+    NgbModule,
   ],
   providers: [],
   bootstrap: [AppComponent]

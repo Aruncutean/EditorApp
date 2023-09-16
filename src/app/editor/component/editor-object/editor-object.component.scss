@@ -1,0 +1,19 @@
+ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    padding-top: 10px;
+    display: flex;
+    left: 0;
+    flex-direction: column;
+    background-color: #313131;
+    height: 100%;
+}
+
+
+li {
+    display: flex;
+    justify-content: center;
+    align-content: center;
+
+}

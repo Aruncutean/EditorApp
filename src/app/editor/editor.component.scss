@@ -7,9 +7,17 @@
 }
 
 .rightBar {
-    height: calc(100vh - 80px);
-    background-color: #223c55;
-    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
-    margin: 10px;
-    border-radius: 10px;
+    height: calc(100vh - 60px);
+    //background-color: #223c55;
+    // box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+}
+
+
+:host ::ng-deep {
+    // .as-horizontal[_nghost-ng-c989505586] > .as-split-gutter[_ngcontent-ng-c989505586] > .as-split-gutter-icon[_ngcontent-ng-c989505586] {
+    //     background-image: none;
+    // }
+    // .as-vertical[_nghost-ng-c989505586] > .as-split-gutter[_ngcontent-ng-c989505586] .as-split-gutter-icon[_ngcontent-ng-c989505586]{
+    //     background-image: none;
+    // }
 }
