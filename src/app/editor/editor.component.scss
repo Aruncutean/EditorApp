@@ -1,23 +1,97 @@
 .canva {
-    transition: 0.5s;
-    width: 1000px;
-    height: calc(100vh - 80px);
-    border-radius: 10px;
-    margin-top: 10px;
+  transition: 0.5s;
+  width: 1000px;
+  height: calc(100vh - 80px);
+  border-radius: 10px;
+  margin-top: 10px;
 }
 
 .rightBar {
-    height: calc(100vh - 60px);
-    //background-color: #223c55;
-    // box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+  height: calc(100vh - 60px);
+
+
 }
 
 
-:host ::ng-deep {
-    // .as-horizontal[_nghost-ng-c989505586] > .as-split-gutter[_ngcontent-ng-c989505586] > .as-split-gutter-icon[_ngcontent-ng-c989505586] {
-    //     background-image: none;
-    // }
-    // .as-vertical[_nghost-ng-c989505586] > .as-split-gutter[_ngcontent-ng-c989505586] .as-split-gutter-icon[_ngcontent-ng-c989505586]{
-    //     background-image: none;
-    // }
+.as-split-area {
+  display: flex;
+  flex-direction: column;
+}
+
+.tab-container {
+  overflow-x: auto;
+  /* Add horizontal scrollbar when tabs overflow */
+  white-space: nowrap;
+  /* Prevent tab text from wrapping */
+  display: flex;
+  align-items: center;
+  /* Center tabs vertically */
+}
+
+.tab {
+  padding: 10px;
+  border: 1px solid #ccc;
+  margin-right: 10px;
+  /* Space between tabs */
+  cursor: pointer;
+}
+
+/* Style for the scrollbar */
+.tab-container::-webkit-scrollbar {
+  width: 10px;
+}
+
+.tab-container::-webkit-scrollbar-thumb {
+  background-color: #888;
+  border-radius: 5px;
+}
+
+.tab-container::-webkit-scrollbar-thumb:hover {
+  background-color: #555;
+}
+
+
+/////////////////
+.example-context-area {
+  display: inline-grid;
+  border: 2px dashed black;
+}
+
+.example-context-area .example-context-area {
+  margin: 100px;
+  width: 200px;
+  height: 100px;
+}
+
+.example-menu {
+  display: inline-flex;
+  flex-direction: column;
+  min-width: 180px;
+  max-width: 280px;
+  background-color: rgb(255, 255, 255);
+  padding: 6px 0;
+}
+
+.example-menu-item {
+  background-color: transparent;
+  cursor: pointer;
+  border: none;
+
+  user-select: none;
+  min-width: 64px;
+  line-height: 36px;
+  padding: 0 16px;
+
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  flex: 1;
+}
+
+.example-menu-item:hover {
+  background-color: rgb(208, 208, 208);
+}
+
+.example-menu-item:active {
+  background-color: rgb(170, 170, 170);
 }

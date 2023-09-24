@@ -1,66 +1,46 @@
 import { FlatTreeControl } from '@angular/cdk/tree';
-import { Component } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { MatTreeFlatDataSource, MatTreeFlattener, MatTreeModule } from '@angular/material/tree';
-interface FoodNode {
-  name: string;
-  children?: FoodNode[];
-}
+import { SceneService } from '../../service/scene.service';
 
-const TREE_DATA: FoodNode[] = [
-  {
-    name: 'Mesh',
-    children: [{ name: 'Apple' }, { name: 'Banana' }, { name: 'Fruit loops' }],
-  },
-  {
-    name: 'Light',
-    children: [
-      {
-        name: 'Green',
+import { MeshType } from '../../interface/MeshInterface';
+import { MousePickingService } from '../../service/mouse-picking.service';
+import { Scene } from '../../interface/SceneInterface';
+import { Mesh } from '../../class/Mesh';
 
-      },
-      { name: 'Broccoli' },
-       { name: 'Brussels sprouts' }
-    ],
-  },
-];
 
-/** Flat node with expandable and level information */
-interface ExampleFlatNode {
-  expandable: boolean;
-  name: string;
-  level: number;
-}
 @Component({
   selector: 'app-list-object',
   templateUrl: './list-object.component.html',
   styleUrls: ['./list-object.component.scss']
 })
-export class ListObjectComponent {
-  private _transformer = (node: FoodNode, level: number) => {
-    return {
-      expandable: !!node.children && node.children.length > 0,
-      name: node.name,
-      level: level,
-    };
-  };
+export class ListObjectComponent implements OnInit, AfterViewInit {
 
-  treeControl = new FlatTreeControl<ExampleFlatNode>(
-    node => node.level,
-    node => node.expandable,
-  );
+  meshs: Mesh[] = [];
+  meshSeleced!: any;
+  
+  meshTypeLight: MeshType = MeshType.Light;
+  constructor(private sceneService: SceneService,
+    private cdRef: ChangeDetectorRef,
+    private mousePicking: MousePickingService) {
 
-  treeFlattener = new MatTreeFlattener(
-    this._transformer,
-    node => node.level,
-    node => node.expandable,
-    node => node.children,
-  );
-
-  dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
-
-  constructor() {
-    this.dataSource.data = TREE_DATA;
   }
 
-  hasChild = (_: number, node: ExampleFlatNode) => node.expandable;
+  ngOnInit(): void {
+    this.sceneService.data$.subscribe((_: Scene) => {
+      this.meshs = _.meshs;
+      this.meshSeleced = this.mousePicking.meshSelected;
+      this.cdRef && this.cdRef.detectChanges();
+    })
+  }
+
+  ngAfterViewInit(): void {
+
+  }
+
+  selectObj(mesh: any) {
+    this.mousePicking.meshSelected = mesh;
+    this.sceneService.setMeshSelected(this.mousePicking.meshSelected);
+  }
+
 }

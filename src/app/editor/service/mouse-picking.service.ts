@@ -7,6 +7,8 @@ import { CameraService } from './camera.service';
 import { Shader } from '../class/Shader';
 import { LoadFileService } from './load-file.service';
 import { Vector3 } from 'three';
+import { SceneService } from './scene.service';
+import { Scene } from '../interface/SceneInterface';
 
 @Injectable({
     providedIn: 'root'
@@ -17,14 +19,24 @@ export class MousePickingService {
     oldPickNdx: any = -1;
     oldPickColor: any;
     frameCount: any = 0;
-
+    meshs: Mesh[] = [];
     gizmoMesh!: Mesh | null;
-    meshSelected!: Mesh | null;
+    gizmoSelected: boolean = false;
+    meshSelected!: Mesh;
     private shader!: Shader;
 
-    constructor(private glService: OpenglService, private camera: CameraService, private loadFile: LoadFileService,) { }
+    constructor(private glService: OpenglService,
+        private camera: CameraService,
+        private loadFile: LoadFileService,
+        private sceneData: SceneService) {
+    }
 
-    async init(meshs: Mesh[], gizmo: Mesh[]) {
+    async init(gizmo: Mesh[]) {
+
+        this.sceneData.data$.subscribe((_: Scene) => {
+            this.meshs = _.meshs;
+        })
+
         this.shader = new Shader(this.glService);
         this.shader.init(
             await this.loadFile.getFile("/assets/shader-picking.vs.glsl").toPromise(),
@@ -43,8 +55,8 @@ export class MousePickingService {
                 this.glService.gl?.clearColor(0.75, 0.8, 0.8, 1.0);
                 this.glService.gl?.clear(this.glService.gl.COLOR_BUFFER_BIT | this.glService.gl.DEPTH_BUFFER_BIT);
 
-                meshs && meshs.forEach((_, index) => {
-                    _.render(this.camera, { shader: this.shader, isMousePicking: true, indexMousePicking: index + 1 }, [0, 0, 0])
+                this.meshs && this.meshs.forEach((_, index) => {
+                    _.render(this.camera, { shader: this.shader, isMousePicking: true, indexMousePicking: index + 1 })
                 });
 
                 this.glService.gl?.clear(this.glService.gl.DEPTH_BUFFER_BIT);
@@ -54,7 +66,7 @@ export class MousePickingService {
                         _.coordonate.position &&
                             this.meshSelected?.coordonate.position &&
                             (_.coordonate.position = this.meshSelected?.coordonate.position)
-                        _.render(this.camera, { shader: this.shader, isMousePicking: true, indexMousePicking: index + 100 }, [0, 0, 0])
+                        _.render(this.camera, { shader: this.shader, isMousePicking: true, indexMousePicking: index + 100 })
                     });
                 }
 
@@ -69,8 +81,9 @@ export class MousePickingService {
                     data);
 
                 const id = data[0] + (data[1] << 8) + (data[2] << 16) + (data[3] << 24);
+
                 if (id != -3355457) {
-                    console.log(id);
+
                     gizmo && gizmo.forEach((_, index) => {
                         index = index + 100;
                         const vec: any[] = [
@@ -81,11 +94,12 @@ export class MousePickingService {
                         let v = (vec[0] * 0xFF + vec[1] * 0xFF * 0xFF + vec[2] * 0xFF * 0xFF * 0xFF + vec[3] * 0xFF * 0xFF * 0xFF * 0xFF);
                         if (v == id) {
                             this.gizmoMesh = _;
+                            this.gizmoSelected = true;
                         }
                     })
 
 
-                    meshs && meshs.forEach((_, index) => {
+                    this.meshs && this.meshs.forEach((_, index) => {
                         index = index + 1;
                         const vec: any[] = [
                             ((index >> 0) & 0xFF) / 0xFF,
@@ -95,11 +109,12 @@ export class MousePickingService {
 
                         if ((vec[0] * 0xFF + vec[1] * 0xFF + vec[2] * 0xFF + vec[3] * 0xFF) == id) {
                             this.meshSelected = _;
+                            this.sceneData.setMeshSelected(_);
                         }
 
                     })
                 } else {
-                    this.meshSelected = null;
+
                     this.gizmoMesh = null;
                 }
             }

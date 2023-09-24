@@ -9,9 +9,8 @@ uniform mat4 mView;
 uniform mat4 mProj;
 uniform vec4 PickingColor;
 
-
 void main() {
     PickingColorOut = PickingColor;
-   
+
     gl_Position = mProj * mView * mWorld * vec4(vertPosition, 1.0);
 }

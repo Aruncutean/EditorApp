@@ -1,0 +1,18 @@
+.form-class {
+    padding: 15px
+}
+
+.input-class {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    gap: 10px;
+    flex-wrap: nowrap;
+    align-content: center;
+    margin-top: 10px;
+}
+
+.label-title {
+    font-weight: 600;
+    margin-top: 10px;
+}

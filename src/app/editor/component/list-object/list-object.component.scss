@@ -1,1 +1,11 @@
-@import "~@angular/material/prebuilt-themes/indigo-pink.css";
+.item {
+    &:hover {
+        background: #efedfb;
+    }
+
+    &.active {
+        color: #fff;
+        background: #595f77;
+        border-color: transparent;
+    }
+}

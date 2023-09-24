@@ -6,19 +6,27 @@
           id="myCanvas"
           #myCanvas
           style="width: 100%; height: calc(100vh - 60px)"
+          [cdkContextMenuTriggerFor]="inner"
         >
         </canvas>
       </div>
     </as-split-area>
-    <as-split-area [size]="30" style="overflow: unset">
-      <div class="rightBar" style="overflow: unset">
+    <as-split-area #splitArea1 [size]="30">
+      <div class="rightBar">
         <as-split direction="vertical">
           <as-split-area
             ><app-list-object style="background-color: white"></app-list-object
           ></as-split-area>
-          <as-split-area><app-editor-object></app-editor-object></as-split-area>
+          <as-split-area class="as-split-area">
+            <app-editor-object></app-editor-object>
+          </as-split-area>
         </as-split>
       </div>
     </as-split-area>
   </as-split>
 </div>
+<ng-template #inner>
+  <div class="example-menu" cdkMenu>
+    <button class="example-menu-item" cdkMenuItem (click)="addLight()">Add Light</button>
+  </div>
+</ng-template>

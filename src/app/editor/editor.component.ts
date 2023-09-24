@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, ViewChild } from '@angular/core';
 
 import { Texture } from './class/Texture';
 import { Mesh } from './class/Mesh';
@@ -8,36 +8,34 @@ import { CameraService } from './service/camera.service';
 import * as THREE from "three";
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import { MousePickingService } from './service/mouse-picking.service';
-import { delay } from 'rxjs';
+import { debounceTime, delay, distinctUntilChanged, fromEvent, map, startWith } from 'rxjs';
 import { Shader } from './class/Shader';
-import { LightInterface } from './interface/LightInterface';
+
 import { vec3 } from 'gl-matrix';
 import { GizmoService } from './service/gizmo.service';
 import { Position } from './interface/CoordonateInterface';
 import { SceneService } from './service/scene.service';
+import { MeshType } from './interface/MeshInterface';
+import { Grid } from './class/Grid';
 @Component({
   selector: 'app-editor',
   templateUrl: './editor.component.html',
   styleUrls: ['./editor.component.scss']
 })
-export class EditorComponent {
-  positionAttribLocation: any;
-  colorAttribLocation: any;
-  program: any;
+export class EditorComponent implements AfterViewInit {
 
   gizmo: Mesh[] = [];
-  lightMesh: LightInterface[] = [];
-  textre!: Texture;
+
+  grid!: Grid;
   loader: any;
-  isOpen: boolean = false;
+
   shader!: Shader;
   @ViewChild('myCanvas', { static: true }) canvasRef!: ElementRef;
 
+  width: any;
 
-  lightPoz: Position = { x: 1, y: 2, z: 2 };
-  value: string = "80px auto 30%";
   constructor(
-
+    private cdRef: ChangeDetectorRef,
     private glService: OpenglService,
     private loadFile: LoadFileService,
     private camera: CameraService,
@@ -60,7 +58,10 @@ export class EditorComponent {
     this.canvasRef.nativeElement.height = 600;
     this.glService.init(this.canvasRef);
     this.gizmoService.init();
-    this.mousePickingService.init(this.sceneService.getMesh(), this.gizmo);
+    this.mousePickingService.init(this.gizmo);
+
+    this.grid = new Grid(this.glService, this.loadFile);
+    this.grid.init();
     this.shader = new Shader(this.glService);
     this.shader && this.shader.init(
       await this.loadFile.getFile("/assets/shader.vs.glsl").toPromise(),
@@ -68,14 +69,29 @@ export class EditorComponent {
     );
 
     this.glService.gl?.enable(this.glService.gl?.DEPTH_TEST);
-    this.glService.gl?.enable(this.glService.gl?.GL_MULTISAMPLE);
+    //  this.glService.gl?.enable(this.glService.gl?.GL_MULTISAMPLE);
 
+    this.loadObject('assets/test43.glb', MeshType.Object);
+    this.loadObject('assets/sphere.glb', MeshType.Light);
+    this.loadObject('assets/giz.glb', MeshType.Gizmo);
+
+  }
+
+
+  loadObject(urlObject: string, type: MeshType) {
     this.loader = new GLTFLoader();
-    this.loader && this.loader.load('assets/test2.glb', (gltf: { scene: any; }) => {
+    this.loader && this.loader.load(urlObject, (gltf: { scene: any; }) => {
       const model = gltf.scene;
-
+      console.log(model)
       model.children.map((_: any) => {
         let mesh!: Mesh;
+        let t;
+        _.material.map && _.material.map.userData &&
+          (t = _.material.map.userData.mimeType.split('/'))
+
+        if (t && t[1] == 'jpeg') {
+          t[1] = 'jpg'
+        }
         _.geometry?.attributes &&
           (mesh = new Mesh({
             vertices: _.geometry.attributes.position.array,
@@ -84,100 +100,47 @@ export class EditorComponent {
             indices: _.geometry.index.array
           },
             {
-              texture: _.material.map ? new Texture("assets/" + _.material.map.name + ".png", this.glService) : undefined,
+              texture: _.material.map ? new Texture("assets/" + _.material.map.name + "." + t[1], this.glService) : undefined,
               color: _.material.color
             },
             {
-              position: { x: _.position.x, y: _.position.y, z: _.position.z },
+              position: { x: _.position.x, y: _.position.y + 0.14, z: _.position.z },
               rotation: _.rotation,
               scale: _.scale
             },
-            this.glService
+            this.glService,
+            this.sceneService
           ))
-        mesh && (mesh.loadLight = true);
-        mesh && this.sceneService.addMesh(mesh);
+        mesh && (mesh.loadLight = (MeshType.Object == type));
+        mesh && (mesh.name = _.name);
+        mesh && (mesh.type = type);
+        mesh && (mesh.id = String(new Date().valueOf() + Math.random()));
 
+        if (MeshType.Light == type) {
+          mesh && this.sceneService.addLight(mesh);
+        };
+
+        (MeshType.Gizmo == type) && mesh && this.gizmo.push(mesh);
+
+        if (MeshType.Object == type) {
+          mesh && this.sceneService.addMesh(mesh);
+        }
       })
     });
+  }
 
-
-    this.loader && this.loader.load('assets/sphere.glb', (gltf: { scene: any; }) => {
-
-      const model = gltf.scene;
-
-      model.children.map((_: any) => {
-        let mesh!: Mesh;
-        _.geometry?.attributes &&
-          (mesh = new Mesh({
-            vertices: _.geometry.attributes.position.array,
-            normal: _.geometry.attributes.normal.array,
-            uv: _.geometry.attributes.uv.array,
-            indices: _.geometry.index.array
-          },
-            {
-              texture: _.material.map ? new Texture("assets/" + _.material.map.name + ".png", this.glService) : undefined,
-              color: _.material.color
-            },
-            {
-              position: { x: _.position.x, y: _.position.y, z: _.position.z },
-              rotation: _.rotation,
-              scale: _.scale
-            },
-            this.glService
-          ))
-        this.lightPoz = mesh.coordonate.position;
-        mesh && (mesh.loadLight = false);
-        mesh && this.sceneService.addMesh(mesh);
-
-      })
-    })
-
-
-    this.loader && this.loader.load('assets/giz.glb', (gltf: { scene: any; }) => {
-
-      const model = gltf.scene;
-      console.log(model);
-
-      model.children.map((_: any) => {
-        let mesh!: Mesh;
-        _.geometry?.attributes &&
-          (mesh = new Mesh({
-            vertices: _.geometry.attributes.position.array,
-            normal: _.geometry.attributes.normal.array,
-            uv: _.geometry.attributes.uv.array,
-            indices: _.geometry.index.array
-          },
-            {
-              texture: _.material.map ? new Texture("assets/" + _.material.map.name + ".png", this.glService) : undefined,
-              color: _.material.color
-            },
-            {
-              position: { x: _.position.x, y: _.position.y, z: _.position.z },
-              rotation: _.rotation,
-              scale: _.scale
-            },
-            this.glService
-          ))
-
-        mesh && (mesh.loadLight = false);
-        mesh && (mesh.name = _.name);
-        mesh && this.gizmo.push(mesh);
-
-      })
-    })
+  addLight() {
+    this.loadObject('assets/sphere.glb', MeshType.Light);
   }
 
   render(): void {
-    this.glService.gl?.clearColor(0.75, 0.8, 0.8, 1.0);
+    this.glService.gl?.clearColor(0.22, 0.22, 0.22, 1);
     this.glService.gl?.clear(this.glService.gl.COLOR_BUFFER_BIT | this.glService.gl.DEPTH_BUFFER_BIT);
 
-    this.sceneService.getMesh().forEach(_ => {
-      _.render(this.camera, { shader: this.shader }, this.lightPoz)
+    this.grid && this.grid.render(this.camera);
+    this.sceneService.getMeshs().forEach((_: any) => {
+      _.render(this.camera, { shader: this.shader })
     });
-
-    // this.lightMesh && this.lightMesh.forEach(_ => {
-    //   _.mesh && _.mesh.render(this.camera, { shader: this.shader }, [this.lightPoz[0], this.lightPoz[1], this.lightPoz[2]])
-    // });
 
     if (this.mousePickingService.meshSelected) {
       this.glService.gl?.clear(this.glService.gl.DEPTH_BUFFER_BIT);
@@ -185,7 +148,7 @@ export class EditorComponent {
         _.coordonate.position &&
           this.mousePickingService.meshSelected?.coordonate.position &&
           (_.coordonate.position = this.mousePickingService.meshSelected?.coordonate.position)
-        _.render(this.camera, { shader: this.shader }, this.lightPoz)
+        _.render(this.camera, { shader: this.shader })
       });
     }
     requestAnimationFrame(() => this.render());

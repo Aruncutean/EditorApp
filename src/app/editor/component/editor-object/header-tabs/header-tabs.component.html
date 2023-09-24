@@ -1,0 +1,26 @@
+<div class="container">
+    <div class="icon" #iconLeft>
+      <i
+        (click)="scrollTabs('left')"
+        id="left"
+        class="fa-solid fa-angle-left"
+      ></i>
+    </div>
+    <ul class="tabs" #tabsBox>
+      <li
+        *ngFor="let tab of tabs"
+        class="tab"
+        [class.active]="tab.active"
+        (click)="onTabClick(tab)"
+      >
+        {{ tab.name }}
+      </li>
+    </ul>
+    <div class="icon" #iconRight>
+      <i
+        (click)="scrollTabs('right')"
+        id="right"
+        class="fa-solid fa-angle-right"
+      ></i>
+    </div>
+  </div>

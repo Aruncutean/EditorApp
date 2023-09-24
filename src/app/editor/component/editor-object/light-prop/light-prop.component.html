@@ -1,0 +1,148 @@
+<form [formGroup]="transformForm" class="form-class">
+  <label class="label-title" id="Location">Location:</label>
+  <div class="form-group input-class">
+    <label for="xLocationF" id="xLocationL">X:</label>
+    <input
+      type="number"
+      id="xLocation"
+      name="xLocation"
+      class="form-control"
+      formControlName="xLocation"
+      step="0.1"
+      (input)="valueChangeInput()"
+    />
+  </div>
+  <div class="form-group input-class">
+    <label for="yLocationF" id="yLocationL">Y:</label>
+    <input
+      type="number"
+      id="yLocation"
+      name="yLocation"
+      class="form-control"
+      formControlName="yLocation"
+      step="0.1"
+      (input)="valueChangeInput()"
+    />
+  </div>
+  <div class="form-group input-class">
+    <label for="zLocationF" id="zLocationL">Z:</label>
+    <input
+      type="number"
+      id="zLocation"
+      name="zLocation"
+      class="form-control"
+      formControlName="zLocation"
+      step="0.1"
+      (input)="valueChangeInput()"
+    />
+  </div>
+  <div
+    style="
+      display: flex;
+      flex-direction: column;
+      flex-wrap: nowrap;
+      justify-content: center;
+      align-items: stretch;
+    "
+  >
+    <label for="Specular" id="Specular">Specular</label>
+    <mat-slider
+      min="0"
+      max="1"
+      step="0.01"
+      showTickMarks
+      discrete
+      [displayWith]="formatLabel"
+      (change)="valueChangeInput()"
+    >
+      <input
+        matSliderThumb
+        class="form-control"
+        formControlName="specular"
+        (input)="valueChangeInput()"
+      />
+    </mat-slider>
+    <label for="Diffuse" id="Diffuse">Diffuse</label>
+    <mat-slider
+      min="0"
+      max="1"
+      step="0.01"
+      showTickMarks
+      discrete
+      [displayWith]="formatLabel"
+      (change)="valueChangeInput()"
+    >
+      <input
+        matSliderThumb
+        class="form-control"
+        formControlName="diffuse"
+        (input)="valueChangeInput()"
+      />
+    </mat-slider>
+    <label for="Diffuse" id="Diffuse">Ambient</label>
+    <mat-form-field>
+      <input
+        matInput
+        [ngxMatColorPicker]="picker"
+        [formControl]="$any(colorCtr)"
+        [ngModel]="colorIn"
+        (colorChange)="updateColor($event, 'dir')"
+      />
+      <ngx-mat-color-toggle matSuffix [for]="picker"></ngx-mat-color-toggle>
+      <ngx-mat-color-picker
+        #picker
+        [touchUi]="false"
+        [color]="'primary'"
+      ></ngx-mat-color-picker>
+    </mat-form-field>
+  </div>
+</form>
+<div
+  *ngIf="isPointLight"
+  style="
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: stretch;
+  "
+>
+  <mat-form-field>
+    <input
+      matInput
+      [ngxMatColorPicker]="picker"
+      [formControl]="$any(colorCtr)"
+      [ngModel]="colorIn"
+      (colorChange)="updateColor($event, 'point')"
+    />
+    <ngx-mat-color-toggle matSuffix [for]="picker"></ngx-mat-color-toggle>
+    <ngx-mat-color-picker
+      #picker
+      [touchUi]="false"
+      [color]="'primary'"
+    ></ngx-mat-color-picker>
+  </mat-form-field>
+
+  <mat-slider
+    min="0"
+    max="1"
+    step="0.1"
+    showTickMarks
+    discrete
+    [displayWith]="formatLabel"
+    (change)="valueChange('specular')"
+  >
+    <input matSliderThumb [(ngModel)]="specular" />
+  </mat-slider>
+  <mat-slider
+    min="0"
+    max="1"
+    step="0.1"
+    showTickMarks
+    discrete
+    [displayWith]="formatLabel"
+    (change)="valueChange('diffuse')"
+  >
+    <input matSliderThumb [(ngModel)]="diffuse" />
+  </mat-slider>
+</div>
