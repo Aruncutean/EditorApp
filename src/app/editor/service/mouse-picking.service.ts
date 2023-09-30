@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { ChangeDetectorRef, Injectable } from '@angular/core';
 
 import { OpenglService } from './opengl.service';
 import { Mesh } from '../class/Mesh';
@@ -28,7 +28,8 @@ export class MousePickingService {
     constructor(private glService: OpenglService,
         private camera: CameraService,
         private loadFile: LoadFileService,
-        private sceneData: SceneService) {
+        private sceneData: SceneService,
+    ) {
     }
 
     async init(gizmo: Mesh[]) {
@@ -37,7 +38,7 @@ export class MousePickingService {
             this.meshs = _.meshs;
         })
 
-        this.shader = new Shader(this.glService);
+        this.shader = new Shader(this.glService.gl);
         this.shader.init(
             await this.loadFile.getFile("/assets/shader-picking.vs.glsl").toPromise(),
             await this.loadFile.getFile("/assets/shader-picking.fs.glsl").toPromise());
@@ -56,7 +57,7 @@ export class MousePickingService {
                 this.glService.gl?.clear(this.glService.gl.COLOR_BUFFER_BIT | this.glService.gl.DEPTH_BUFFER_BIT);
 
                 this.meshs && this.meshs.forEach((_, index) => {
-                    _.render(this.camera, { shader: this.shader, isMousePicking: true, indexMousePicking: index + 1 })
+                    _.renderForward(this.camera, { shader: this.shader, isMousePicking: true, indexMousePicking: index + 1 })
                 });
 
                 this.glService.gl?.clear(this.glService.gl.DEPTH_BUFFER_BIT);
@@ -66,7 +67,7 @@ export class MousePickingService {
                         _.coordonate.position &&
                             this.meshSelected?.coordonate.position &&
                             (_.coordonate.position = this.meshSelected?.coordonate.position)
-                        _.render(this.camera, { shader: this.shader, isMousePicking: true, indexMousePicking: index + 100 })
+                        _.renderForward(this.camera, { shader: this.shader, isMousePicking: true, indexMousePicking: index + 100 })
                     });
                 }
 
@@ -108,8 +109,10 @@ export class MousePickingService {
                             ((index >> 24) & 0xFF) / 0xFF]
 
                         if ((vec[0] * 0xFF + vec[1] * 0xFF + vec[2] * 0xFF + vec[3] * 0xFF) == id) {
+
                             this.meshSelected = _;
                             this.sceneData.setMeshSelected(_);
+
                         }
 
                     })

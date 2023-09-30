@@ -6,10 +6,10 @@ import { vec3 } from 'gl-matrix';
 })
 export class CameraService {
 
-  cameraPos: vec3 = [0, 6, 10];
+  cameraPos: vec3 = [7, 11, 13];
   cameraFront: vec3 = [0, 0, -1];
   cameraUp: vec3 = [0, 1, 0];
-
+  fieldOfView: any = 20;
   constructor() {
   }
 

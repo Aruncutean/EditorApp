@@ -10,7 +10,7 @@ import { SceneService } from 'src/app/editor/service/scene.service';
   templateUrl: './light-prop.component.html',
   styleUrls: ['./light-prop.component.scss']
 })
-export class LightPropComponent implements OnInit, AfterViewInit {
+export class LightPropComponent implements OnInit {
 
 
   colorCtr: AbstractControl = new FormControl("");
@@ -67,9 +67,7 @@ export class LightPropComponent implements OnInit, AfterViewInit {
 
   }
 
-  ngAfterViewInit(): void {
 
-  }
 
   valueChange(type: any) {
     if (type == "specular") {

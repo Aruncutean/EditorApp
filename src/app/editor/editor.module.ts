@@ -25,6 +25,8 @@ import { MAT_COLOR_FORMATS, NGX_MAT_COLOR_FORMATS, NgxMatColorPickerModule } fro
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSliderModule } from '@angular/material/slider';
+import { MousePickingService } from './service/mouse-picking.service';
+import { ShadowMappingComponent } from './component/editor-object/shadow-mapping/shadow-mapping.component';
 
 @NgModule({
     declarations: [
@@ -37,7 +39,8 @@ import { MatSliderModule } from '@angular/material/slider';
         ObjectPropComponent,
         MaterialPropComponent,
         ModifiersPropComponent,
-        LightPropComponent
+        LightPropComponent,
+        ShadowMappingComponent
     ],
     imports: [
         CommonModule,
@@ -57,7 +60,7 @@ import { MatSliderModule } from '@angular/material/slider';
         FormsModule
     ],
     providers: [
-        SceneService,
+        SceneService, MousePickingService,
         { provide: MAT_COLOR_FORMATS, useValue: NGX_MAT_COLOR_FORMATS }
     ]
 })

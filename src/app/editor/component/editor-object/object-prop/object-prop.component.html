@@ -1,115 +1,119 @@
 <form [formGroup]="transformForm" class="form-class">
   <label class="label-title" id="Location">Location:</label>
-  <div class="form-group input-class">
-    <label for="xLocationF" id="xLocationL">X:</label>
-    <input
-      type="number"
-      id="xLocation"
-      name="xLocation"
-      class="form-control"
-      formControlName="xLocation"
-      step="0.1"
-      (input)="valueChange()"
-    />
+  <div class="container">
+    <div class="form-group input-class">
+      <label class="labelLine" for="xLocation">X:</label>
+      <input
+        type="number"
+        id="xLocation"
+        name="xLocation"
+        class="form-control"
+        formControlName="xLocation"
+        step="0.1"
+        (input)="valueChange()"
+      />
+    </div>
+    <div class="form-group input-class">
+      <label class="labelLine" for="yLocation">Y:</label>
+      <input
+        type="number"
+        id="yLocation"
+        name="yLocation"
+        class="form-control"
+        formControlName="yLocation"
+        step="0.1"
+        (input)="valueChange()"
+      />
+    </div>
+    <div class="form-group input-class">
+      <label class="labelLine" for="zLocation">Z:</label>
+      <input
+        type="number"
+        id="zLocation"
+        name="zLocation"
+        class="form-control"
+        formControlName="zLocation"
+        step="0.1"
+        (input)="valueChange()"
+      />
+    </div>
   </div>
-  <div class="form-group input-class">
-    <label for="yLocationF" id="yLocationL">Y:</label>
-    <input
-      type="number"
-      id="yLocation"
-      name="yLocation"
-      class="form-control"
-      formControlName="yLocation"
-      step="0.1"
-      (input)="valueChange()"
-    />
-  </div>
-  <div class="form-group input-class">
-    <label for="zLocationF" id="zLocationL">Z:</label>
-    <input
-      type="number"
-      id="zLocation"
-      name="zLocation"
-      class="form-control"
-      formControlName="zLocation"
-      step="0.1"
-      (input)="valueChange()"
-    />
-  </div>
-
   <label class="label-title">Rotation:</label>
-  <div class="form-group input-class">
-    <label  for="zLocationF" id="zLocationL">X:</label>
-    <input
-      type="number"
-      id="xRotation"
-      name="xRotation"
-      class="form-control"
-      formControlName="xRotation"
-      step="0.1"
-      (input)="valueChange()"
-    />
+  <div class="container">
+    <div class="form-group input-class">
+      <label class="labelLine" for="xRotation">X:</label>
+      <input
+        type="number"
+        id="xRotation"
+        name="xRotation"
+        class="form-control"
+        formControlName="xRotation"
+        step="0.1"
+        (input)="valueChange()"
+      />
+    </div>
+    <div class="form-group input-class">
+      <label class="labelLine" for="yRotation">Y:</label>
+      <input
+        type="number"
+        id="yRotation"
+        name="yRotation"
+        class="form-control"
+        formControlName="yRotation"
+        step="0.1"
+        (change)="valueChange()"
+      />
+    </div>
+    <div class="form-group input-class">
+      <label class="labelLine" for="zRotation">Z:</label>
+      <input
+        type="number"
+        id="zRotation"
+        name="zRotation"
+        class="form-control"
+        formControlName="zRotation"
+        step="0.1"
+        (input)="valueChange()"
+      />
+    </div>
   </div>
-  <div class="form-group input-class">
-    <label  for="zLocationF" id="zLocationL">Y:</label>
-    <input
-      type="number"
-      id="yRotation"
-      name="yRotation"
-      class="form-control"
-      formControlName="yRotation"
-      step="0.1"
-      (change)="valueChange()"
-    />
-  </div>
-  <div class="form-group input-class">
-    <label  for="zLocationF" id="zLocationL">Z:</label>
-    <input
-      type="number"
-      id="zRotation"
-      name="zRotation"
-      class="form-control"
-      formControlName="zRotation"
-      step="0.1"
-      (input)="valueChange()"
-    />
-  </div>
-
   <label class="label-title">Scale:</label>
-  <div class="form-group input-class">
-    <label  for="zLocationF" id="zLocationL">X:</label>
-    <input
-      type="number"
-      id="xScale"
-      name="xScale"
-      class="form-control"
-      formControlName="xScale"
-      step="0.1"
-      (input)="valueChange()"
-    />
-  </div>
-  <div class="form-group input-class">
-    <label for="zLocationF" id="zLocationL" >Y:</label>
-    <input
-      type="number"
-      id="yScale"
-      name="yScale"
-      class="form-control"
-      formControlName="yScale"
-      step="0.1"
-      (input)="valueChange()"
-    />
-  </div>
-  <div class="form-group input-class">
-    <label  for="zLocationF" id="zLocationL">Z:</label>
-    <input
-      type="number"
-      id="zScale"
-      name="zScale"
-      class="form-control"
-      formControlName="zScale"
-      step="0.1"
-      (input)="valueChange()"
-    />
+  <div class="container">
+    <div class="form-group input-class">
+      <label class="labelLine" for="xScale">X:</label>
+      <input
+        type="number"
+        id="xScale"
+        name="xScale"
+        class="form-control"
+        formControlName="xScale"
+        step="0.1"
+        (input)="valueChange()"
+      />
+    </div>
+    <div class="form-group input-class">
+      <label class="labelLine" for="yScale">Y:</label>
+      <input
+        type="number"
+        id="yScale"
+        name="yScale"
+        class="form-control"
+        formControlName="yScale"
+        step="0.1"
+        (input)="valueChange()"
+      />
+    </div>
+    <div class="form-group input-class">
+      <label class="labelLine" for="zScale">Z:</label>
+      <input
+        type="number"
+        id="zScale"
+        name="zScale"
+        class="form-control"
+        formControlName="zScale"
+        step="0.1"
+        (input)="valueChange()"
+      />
+    </div>
   </div>
 </form>

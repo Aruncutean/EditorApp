@@ -19,7 +19,7 @@ export class Grid {
     }
 
     async init() {
-        this.shader = new Shader(this.glService);
+        this.shader = new Shader(this.glService.gl);
         this.shader && this.shader.init(
             await this.loadFile.getFile("/assets/shader/shader-grid.vs.glsl").toPromise(),
             await this.loadFile.getFile("/assets/shader/shader-grid.fs.glsl").toPromise()
@@ -66,7 +66,7 @@ export class Grid {
 
             var ve: vec3 = [0, 0, 0];
             vec3.add(ve, camera.cameraPos, camera.cameraFront);
-            mat4.lookAt(viewMatrix, camera.cameraPos, ve, camera.cameraUp);
+            mat4.lookAt(viewMatrix, camera.cameraPos, camera.cameraFront, camera.cameraUp);
 
 
             mat4.perspective(projMatrix, glMatrix.toRadian(60), this.glService.canvas.clientWidth / this.glService.canvas.clientHeight, 0.1, 1000.0);
@@ -78,7 +78,7 @@ export class Grid {
             const matProjUniformLocation = this.glService.gl?.getUniformLocation(this.shader.program, 'mProj');
             this.glService.gl?.uniform1f(this.getUniformLocation(this.shader, 'fogDistance'), 0.1);
             this.glService.gl?.uniform3f(this.getUniformLocation(this.shader, 'cameraPosition'), camera.cameraPos[0], camera.cameraPos[1], camera.cameraPos[2]);
-            this.glService.gl?.uniform3f(this.getUniformLocation(this.shader, 'fogColor'), 0,0,0);
+            this.glService.gl?.uniform3f(this.getUniformLocation(this.shader, 'fogColor'), 0, 0, 0);
 
 
             this.glService.gl?.uniformMatrix4fv(matWorldUniformLocation, this.glService.gl?.FALSE, worldMatrix);

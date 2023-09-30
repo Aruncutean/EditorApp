@@ -36,22 +36,23 @@ export class GizmoService {
         });
         this.glService.canvas.addEventListener('mousemove', (event) => {
             if (isDragging && this.mousePickingService.gizmoSelected) {
+              
                 if (this.mousePickingService.gizmoMesh) {
                     if (this.mousePickingService.gizmoMesh.name == 'x') {
                         const deltaX = event.clientX - previousMouseX;
                         if (this.camera.cameraFront[2] > 0) {
                             this.mousePickingService.meshSelected &&
-                                (this.mousePickingService.meshSelected.coordonate.position.x -= deltaX * 0.05);
+                                (this.mousePickingService.meshSelected.coordonate.position.x -= deltaX * 0.025);
                         } else {
                             this.mousePickingService.meshSelected &&
-                                (this.mousePickingService.meshSelected.coordonate.position.x += deltaX * 0.05);
+                                (this.mousePickingService.meshSelected.coordonate.position.x += deltaX * 0.025);
                         }
                         previousMouseX = event.clientX;
 
-                        const deltaY = event.clientY - previousMouseY;
-                        this.mousePickingService.meshSelected &&
-                            (this.mousePickingService.meshSelected.coordonate.position.x += deltaY * 0.05);
-                        previousMouseY = event.clientY;
+                        // const deltaY = event.clientY - previousMouseY;
+                        // this.mousePickingService.meshSelected &&
+                        //     (this.mousePickingService.meshSelected.coordonate.position.x += deltaY * 0.05);
+                        // previousMouseY = event.clientY;
                     } else if (this.mousePickingService.gizmoMesh.name == 'y') {
                         const deltaX = event.clientX - previousMouseX;
                         this.mousePickingService.meshSelected &&

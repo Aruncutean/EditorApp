@@ -6,4 +6,5 @@ export interface Scene {
     light: Light[];
     meshSelected?: Mesh;
     dirLight: Light;
+    depthMap?: any;
 }

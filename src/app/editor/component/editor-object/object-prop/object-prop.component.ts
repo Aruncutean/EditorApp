@@ -31,11 +31,7 @@ export class ObjectPropComponent implements OnInit, AfterViewInit {
 
 
   ngOnInit(): void {
-    this.setValue()
-
-    this.sceneService.data$.subscribe((_: any) => {
-      this.setValue();
-    })
+ 
   }
 
   setValue() {
@@ -50,11 +46,15 @@ export class ObjectPropComponent implements OnInit, AfterViewInit {
       yScale: 0,
       zScale: 0
     })
-    this.cdr && this.cdr.detectChanges();
+   // this.cdr && this.cdr.detectChanges();
   }
 
   ngAfterViewInit(): void {
+    this.setValue()
 
+    this.sceneService.data$.subscribe((_: any) => {
+      this.setValue();
+    })
   }
 
   valueChange() {

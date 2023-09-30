@@ -53,13 +53,17 @@ export class HeaderTabsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.tabs = [{ active: true, name: "Object" },
     { active: false, name: "Light" },
     { active: false, name: "Material" },
-    { active: false, name: "Modifiers" }
+    { active: false, name: "Modifiers" },
+    { active: false, name: "ShadowMapping" }
     ];
 
   }
 
+  
   ngAfterViewInit(): void {
+  
   }
+
 
   onTabClick(tab: any) {
     this.tabs.forEach(t => t.active = false);
