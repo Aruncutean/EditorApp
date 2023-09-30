@@ -72,6 +72,11 @@ export class Shader {
     sendVec3V(name: string, value: vec3) {
         this.gl?.uniform3f(this.getUniformLocation(name), value[0], value[1], value[2]);
     }
+
+    sendVec4(name: string, value: number[]) {
+        this.gl?.uniform4fv(this.getUniformLocation(name), value);
+    }
+
     setMat2(name: string, value: any) {
         this.gl?.uniformMatrix2fv(this.getUniformLocation(name), this.gl?.FALSE, value);
     }
