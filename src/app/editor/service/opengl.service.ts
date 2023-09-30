@@ -1,6 +1,7 @@
 import { ElementRef, Injectable } from '@angular/core';
 import { CameraService } from './camera.service';
 import { glMatrix, vec3 } from 'gl-matrix';
+import { IParam } from '../interface/SceneInterface';
 
 @Injectable({
   providedIn: 'root'
@@ -19,6 +20,9 @@ export class OpenglService {
   yoffset: number = 0;
   isMousePressed: boolean = false;
   canvas!: HTMLCanvasElement;
+
+  quadVBO: any;
+  quadVAO: any
   private keys: { [key: string]: boolean } = {};
   constructor(private camera: CameraService) { }
 
@@ -124,4 +128,72 @@ export class OpenglService {
 
   }
 
+
+  generateBuffer() {
+    let buffer: any = this.gl.createFramebuffer();
+    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, buffer);
+
+    return buffer;
+  }
+
+  generateTexture(param: IParam) {
+    let texture = this.gl.createTexture();
+
+    this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
+    this.gl.texImage2D(this.gl.TEXTURE_2D, 0, param.internalformat, this.canvas.width, this.canvas.height, 0, param.format, param.type, null);
+    param.maxFilter && this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, param.minFilter);
+    param.minFilter && param.maxFilter && this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, param.maxFilter);
+    param.wrapS && this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, param.wrapS);
+    param.wrapT && this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, param.wrapT);
+    return texture;
+  }
+
+  glError() {
+    const error = this.gl.getError();
+    if (error !== this.gl.NO_ERROR) {
+      console.log("WebGL error:", error);
+    }
+  }
+
+  glClear() {
+    this.gl?.clearColor(0.22, 0.22, 0.22, 1);
+    this.gl?.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
+  }
+
+  initQuadBuffer() {
+    let quadVertices: any[] = [
+      -1.0, 1.0, 0.0, 1.0,
+      -1.0, -1.0, 0.0, 0.0,
+      1.0, -1.0, 1.0, 0.0,
+
+      -1.0, 1.0, 0.0, 1.0,
+      1.0, -1.0, 1.0, 0.0,
+      1.0, 1.0, 1.0, 1.0
+    ];
+    this.quadVAO = this.gl.createVertexArray();
+    this.gl.bindVertexArray(this.quadVAO);
+    this.quadVBO = this.gl?.createBuffer();
+    this.gl?.bindBuffer(this.gl.ARRAY_BUFFER, this.quadVBO);
+    this.gl?.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(quadVertices), this.gl.STATIC_DRAW);
+    this.gl?.enableVertexAttribArray(0);
+    this.gl?.vertexAttribPointer(0, 2, this.gl?.FLOAT, false, 4 * Float32Array.BYTES_PER_ELEMENT, 0);
+    this.gl?.enableVertexAttribArray(1);
+    this.gl?.vertexAttribPointer(1, 2, this.gl?.FLOAT, false, 4 * Float32Array.BYTES_PER_ELEMENT, 2 * Float32Array.BYTES_PER_ELEMENT);
+    this.gl.bindVertexArray(null);
+  }
+
+  renderDebugDepthQuad(texture: any[]) {
+    this.gl.bindVertexArray(this.quadVAO);
+
+    for (let index in texture) {
+      this.gl.activeTexture(this.gl.TEXTURE0 + Number(index));
+      this.gl.bindTexture(this.gl.TEXTURE_2D, texture[index]);
+    }
+    this.gl?.bindBuffer(this.gl.ARRAY_BUFFER, this.quadVBO);
+
+
+    this.gl?.drawArrays(this.gl?.TRIANGLES, 0, 6);
+    this.gl.bindVertexArray(null);
+
+  }
 }

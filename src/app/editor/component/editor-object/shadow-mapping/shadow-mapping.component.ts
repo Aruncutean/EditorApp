@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnInit, ViewChild, numberAttribute } from '@angular/core';
 import { Shader } from 'src/app/editor/class/Shader';
 import { LoadFileService } from 'src/app/editor/service/load-file.service';
 import { SceneService } from 'src/app/editor/service/scene.service';
@@ -12,7 +12,6 @@ export class ShadowMappingComponent implements OnInit, AfterViewInit {
 
 
   @ViewChild('canvas', { static: true }) canvasRef!: ElementRef;
-  canvas: any;
   gl: any;
   debugDepthQuad!: Shader;
   quadVBO: any;
@@ -24,21 +23,6 @@ export class ShadowMappingComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.sceneService.data$.subscribe(_ => {
-      if (_.depthMap && this.gl) {
-        let texture = this.gl.createTexture();
-
-        this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
-        this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.DEPTH_COMPONENT16, this.canvas.width, this.canvas.height, 0, this.gl.DEPTH_COMPONENT, this.gl.UNSIGNED_SHORT, null);
-
-        // this.glService.gl.texImage2D(this.glService.gl.TEXTURE_2D, 0, param.internalformat, this.glService.canvas.width, this.glService.canvas.height, 0, param.format, param.type, null);
-
-        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.NEAREST);
-        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.NEAREST);
-        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.REPEAT);
-        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.REPEAT);
-        this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0, this.gl.TEXTURE_2D, texture, 0);
-
-      }
       _.depthMap && (this.depthMap = _.depthMap)
     })
   }
@@ -49,8 +33,8 @@ export class ShadowMappingComponent implements OnInit, AfterViewInit {
   }
 
   async initWebGL() {
-    this.canvas = this.canvasRef.nativeElement;
-    this.gl = this.canvas.getContext('webgl2', { antialias: true });
+    let canvas = this.canvasRef.nativeElement;
+    this.gl = canvas.getContext('webgl2', { antialias: true });
     if (!this.gl) {
       console.error('ShadowMappingComponent Your browser does not support WebGL');
     }
@@ -92,15 +76,28 @@ export class ShadowMappingComponent implements OnInit, AfterViewInit {
       if (this.debugDepthQuad && this.debugDepthQuad.program) {
 
         this.gl?.useProgram(this.debugDepthQuad.program);
-        this.gl?.uniform1f(this.getUniformLocation(this.debugDepthQuad, 'depthMap'), 0);
-        this.gl?.uniform1f(this.getUniformLocation(this.debugDepthQuad, 'near_plane'), -100);
-        this.gl?.uniform1f(this.getUniformLocation(this.debugDepthQuad, 'far_plane'), 200);
+        this.gl?.uniform1i(this.getUniformLocation(this.debugDepthQuad, 'depthMap'), 0);
 
 
-        if (this.depthMap) {
+        let depthMap = this.sceneService.getDepthMap();
+        if (depthMap) {
+          const framebuffer = this.gl.createFramebuffer()
+          this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, framebuffer);
+
+          const newTexture = this.gl.createTexture();
+          this.gl.bindTexture(this.gl.TEXTURE_2D, newTexture);
+          this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA16F, 400, 400, 0, this.gl.RGBA, this.gl.FLOAT, depthMap);
+
+          //this.gl.generateMipmap(this.gl.TEXTURE_2D);
+          this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR_MIPMAP_LINEAR);
+          this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR);
+          this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.MIRRORED_REPEAT);
+          this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.MIRRORED_REPEAT);
+
+          this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
 
           this.gl.activeTexture(this.gl.TEXTURE0);
-          this.gl.bindTexture(this.gl.TEXTURE_2D, this.depthMap);
+          this.gl.bindTexture(this.gl.TEXTURE_2D, newTexture);
         }
 
         this.gl?.bindBuffer(this.gl.ARRAY_BUFFER, this.quadVBO);

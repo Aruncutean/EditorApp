@@ -14,17 +14,6 @@ import { SceneService } from './service/scene.service';
 import { MeshType } from './interface/MeshInterface';
 import { Grid } from './class/Grid';
 
-interface IParam {
-  internalformat: any,
-  format: any,
-  attachment?: any;
-  minFilter: any,
-  maxFilter: any,
-  wrapS?: any,
-  wrapT?: any,
-  type: any
-}
-
 @Component({
   selector: 'app-editor',
   templateUrl: './editor.component.html',
@@ -48,7 +37,7 @@ export class EditorComponent implements AfterViewInit {
   width: any;
   fbo: any;
   fboTexture: any;
-  quadVBO: any;
+
 
   depthMapFBO: any;
 
@@ -58,6 +47,11 @@ export class EditorComponent implements AfterViewInit {
   gBuffer: any;
   depthMap: any;
   pixels: any;
+
+  vao: any;
+  /// Test
+  bufferTest: any;
+  textureTest: any;
   constructor(
     private cdRef: ChangeDetectorRef,
     private glService: OpenglService,
@@ -129,12 +123,12 @@ export class EditorComponent implements AfterViewInit {
     this.loadObject('assets/test43.glb', MeshType.Object);
     this.loadObject('assets/Light.glb', MeshType.Light);
     this.loadObject('assets/giz.glb', MeshType.Gizmo);
-    this.randareBuffer();
+    this.glService.initQuadBuffer();
 
 
     this.gBuffer = this.glService.gl.createFramebuffer();
     this.glService.gl.bindFramebuffer(this.glService.gl.FRAMEBUFFER, this.gBuffer);
-    this.gPosition = this.generateTexture({
+    this.gPosition = this.glService.generateTexture({
       internalformat: this.glService.gl.RGBA16F,
       format: this.glService.gl.RGBA,
       type: this.glService.gl.FLOAT,
@@ -144,7 +138,7 @@ export class EditorComponent implements AfterViewInit {
     });
     this.glService.gl.framebufferTexture2D(this.glService.gl.FRAMEBUFFER, this.glService.gl.COLOR_ATTACHMENT0, this.glService.gl.TEXTURE_2D, this.gPosition, 0);
 
-    this.gNormal = this.generateTexture({
+    this.gNormal = this.glService.generateTexture({
       internalformat: this.glService.gl.RGBA16F,
       format: this.glService.gl.RGBA,
       type: this.glService.gl.FLOAT,
@@ -153,7 +147,7 @@ export class EditorComponent implements AfterViewInit {
     })
     this.glService.gl.framebufferTexture2D(this.glService.gl.FRAMEBUFFER, this.glService.gl.COLOR_ATTACHMENT1, this.glService.gl.TEXTURE_2D, this.gNormal, 0);
 
-    this.gAlbedoSpec = this.generateTexture({
+    this.gAlbedoSpec = this.glService.generateTexture({
       internalformat: this.glService.gl.RGBA,
       format: this.glService.gl.RGBA,
       type: this.glService.gl.UNSIGNED_BYTE,
@@ -176,9 +170,8 @@ export class EditorComponent implements AfterViewInit {
 
     this.glService.gl.bindFramebuffer(this.glService.gl.FRAMEBUFFER, null);
 
-
-    this.depthMapFBO = this.generateBuffer();
-    this.depthMap = this.generateTexture({
+    this.depthMapFBO = this.glService.generateBuffer();
+    this.depthMap = this.glService.generateTexture({
       internalformat: this.glService.gl.DEPTH_COMPONENT16,
       format: this.glService.gl.DEPTH_COMPONENT,
       type: this.glService.gl.UNSIGNED_SHORT,
@@ -191,44 +184,24 @@ export class EditorComponent implements AfterViewInit {
     this.glService.gl.framebufferTexture2D(this.glService.gl.FRAMEBUFFER, this.glService.gl.DEPTH_ATTACHMENT, this.glService.gl.TEXTURE_2D, this.depthMap, 0);
 
 
-
-    // this.glService.gl.drawBuffers([]);
-    // this.glService.gl.readBuffer(this.glService.gl.NONE);
-    const framebufferStatus = this.glService.gl.checkFramebufferStatus(this.glService.gl.FRAMEBUFFER);
-    if (framebufferStatus !== this.glService.gl.FRAMEBUFFER_COMPLETE) {
-      console.error("Framebuffer is not complete");
-    }
     this.glService.gl.bindFramebuffer(this.glService.gl.FRAMEBUFFER, null);
+
+
+    this.bufferTest = this.glService.generateBuffer();
+    this.textureTest = this.glService.generateTexture({
+      internalformat: this.glService.gl.RGBA32F,
+      format: this.glService.gl.RGBA,
+      type: this.glService.gl.FLOAT,
+      minFilter: this.glService.gl.NEAREST,
+      maxFilter: this.glService.gl.NEAREST,
+
+    });
+    this.glService.gl.framebufferTexture2D(this.glService.gl.FRAMEBUFFER, this.glService.gl.COLOR_ATTACHMENT0, this.glService.gl.TEXTURE_2D, this.textureTest, 0);
+
+    this.glService.gl.bindFramebuffer(this.glService.gl.FRAMEBUFFER, null);
+
   }
 
-  glError() {
-    const error = this.glService.gl.getError();
-    if (error !== this.glService.gl.NO_ERROR) {
-      console.log("WebGL error:", error);
-    }
-  }
-
-  generateBuffer() {
-    let buffer: any = this.glService.gl.createFramebuffer();
-    this.glService.gl.bindFramebuffer(this.glService.gl.FRAMEBUFFER, buffer);
-
-    return buffer;
-  }
-
-  generateTexture(param: IParam) {
-    let texture = this.glService.gl.createTexture();
-
-    this.glService.gl.bindTexture(this.glService.gl.TEXTURE_2D, texture);
-    this.glService.gl.texImage2D(this.glService.gl.TEXTURE_2D, 0, param.internalformat, this.glService.canvas.width, this.glService.canvas.height, 0, param.format, param.type, null);
-
-    // this.glService.gl.texImage2D(this.glService.gl.TEXTURE_2D, 0, param.internalformat, this.glService.canvas.width, this.glService.canvas.height, 0, param.format, param.type, null);
-
-    param.maxFilter && this.glService.gl.texParameteri(this.glService.gl.TEXTURE_2D, this.glService.gl.TEXTURE_MIN_FILTER, param.minFilter);
-    param.minFilter && param.maxFilter && this.glService.gl.texParameteri(this.glService.gl.TEXTURE_2D, this.glService.gl.TEXTURE_MAG_FILTER, param.maxFilter);
-    param.wrapS && this.glService.gl.texParameteri(this.glService.gl.TEXTURE_2D, this.glService.gl.TEXTURE_WRAP_S, param.wrapS);
-    param.wrapT && this.glService.gl.texParameteri(this.glService.gl.TEXTURE_2D, this.glService.gl.TEXTURE_WRAP_T, param.wrapT);
-    return texture;
-  }
 
   loadObject(urlObject: string, type: MeshType) {
     this.loader = new GLTFLoader();
@@ -285,113 +258,107 @@ export class EditorComponent implements AfterViewInit {
     this.loadObject('assets/Light.glb', MeshType.Light);
   }
 
-
-  randareBuffer() {
-
-    let quadVertices: any[] = [
-      -1.0, 1.0, 0.0, 1.0,
-      -1.0, -1.0, 0.0, 0.0,
-      1.0, -1.0, 1.0, 0.0,
-
-      -1.0, 1.0, 0.0, 1.0,
-      1.0, -1.0, 1.0, 0.0,
-      1.0, 1.0, 1.0, 1.0
-    ];
-    this.quadVBO = this.glService.gl?.createBuffer();
-    this.glService.gl?.bindBuffer(this.glService.gl.ARRAY_BUFFER, this.quadVBO);
-    this.glService.gl?.bufferData(this.glService.gl.ARRAY_BUFFER, new Float32Array(quadVertices), this.glService.gl.STATIC_DRAW);
-    this.glService.gl?.enableVertexAttribArray(0);
-    this.glService.gl?.vertexAttribPointer(0, 2, this.glService.gl?.FLOAT, false, 4 * Float32Array.BYTES_PER_ELEMENT, 0);
-    this.glService.gl?.enableVertexAttribArray(1);
-    this.glService.gl?.vertexAttribPointer(1, 2, this.glService.gl?.FLOAT, false, 4 * Float32Array.BYTES_PER_ELEMENT, 2 * Float32Array.BYTES_PER_ELEMENT);
-
-    this.glService.gl?.disableVertexAttribArray(0);
-    this.glService.gl?.disableVertexAttribArray(1);
-
-  }
-
   render(): void {
-    this.glService.gl.viewport(0, 0, this.glService.canvas.width, this.glService.canvas.height);
-    this.glService.gl.cullFace(this.glService.gl.FRONT);
-    this.glService.gl.bindFramebuffer(this.glService.gl.FRAMEBUFFER, this.depthMapFBO);
-    this.glService.gl?.enable(this.glService.gl?.DEPTH_TEST);
+    {
+      this.glService.gl.viewport(0, 0, this.glService.canvas.width, this.glService.canvas.height);
+      this.glService.gl.cullFace(this.glService.gl.FRONT);
+      this.glService.gl.bindFramebuffer(this.glService.gl.FRAMEBUFFER, this.depthMapFBO);
 
-    this.glService.gl?.clearColor(0.22, 0.22, 0.22, 1);
-    this.glService.gl?.clear(this.glService.gl.DEPTH_BUFFER_BIT);
-    this.sceneService.getMeshs().forEach((_: any) => {
-      _.renderForward(this.camera, { shader: this.simpleDepthShader }, true)
-    });
-    const pixelData = new Uint8Array(this.glService.canvas.width * this.glService.canvas.height * 4);
-    this.glService.gl.readPixels(0, 0, this.glService.canvas.width, this.glService.canvas.height, this.glService.gl.RGBA, this.glService.gl.UNSIGNED_BYTE, pixelData);
+      this.glService.glClear();
 
-    const framebufferStatus = this.glService.gl.checkFramebufferStatus(this.glService.gl.FRAMEBUFFER);
-    if (framebufferStatus !== this.glService.gl.FRAMEBUFFER_COMPLETE) {
-      console.error("Framebuffer is not complete");
+      this.sceneService.getMeshs().forEach((_: any) => {
+        _.renderForward(this.camera, { shader: this.simpleDepthShader }, true)
+      });
+
+      this.glService.gl.bindFramebuffer(this.glService.gl.FRAMEBUFFER, null);
+      this.glService.gl.cullFace(this.glService.gl.BACK);
     }
-    this.glService.gl.bindFramebuffer(this.glService.gl.FRAMEBUFFER, null);
-    this.glService.gl.cullFace(this.glService.gl.BACK);
+
+    {
+      this.glService.gl.bindFramebuffer(this.glService.gl.FRAMEBUFFER, this.bufferTest);
+      if (this.debugDepthQuad && this.debugDepthQuad.program) {
+        this.debugDepthQuad.useShader();
+        this.debugDepthQuad.sendInt('depthMap', 0);
+        this.glService.renderDebugDepthQuad([this.depthMap]);
+      }
+
+      if (this.textureTest) {
+        this.pixels = new Float32Array(this.glService.canvas.width * this.glService.canvas.height * 4);
+        this.glService.gl.readPixels(0, 0, this.glService.canvas.width, this.glService.canvas.height, this.glService.gl.RGBA, this.glService.gl.FLOAT, this.pixels);
+      }
+      this.glService.gl.bindFramebuffer(this.glService.gl.FRAMEBUFFER, null);
+    }
+
+    {
+
+      this.glService.gl.bindFramebuffer(this.glService.gl.FRAMEBUFFER, this.gBuffer);
+      this.glService.glClear();
+      this.sceneService.getMeshs().forEach((_: any) => {
+        _.renderDeferred(this.camera, { shader: this.shaderGeometryPass })
+      });
+
+      this.glService.gl.bindFramebuffer(this.glService.gl.FRAMEBUFFER, null);
+    }
 
 
-    this.glService.gl.viewport(0, 0, this.glService.canvas.width, this.glService.canvas.height);
-    this.glService.gl?.enable(this.glService.gl?.DEPTH_TEST);
-    this.glService.gl?.clearColor(0.2, 0.2, 0.2, 1);
-    this.glService.gl?.clear(this.glService.gl.COLOR_BUFFER_BIT | this.glService.gl.DEPTH_BUFFER_BIT);
-
-    this.glService.gl.bindFramebuffer(this.glService.gl.FRAMEBUFFER, this.gBuffer);
-
-    this.glService.gl?.clear(this.glService.gl.COLOR_BUFFER_BIT | this.glService.gl.DEPTH_BUFFER_BIT);
-    this.sceneService.getMeshs().forEach((_: any) => {
-      _.renderDeferred(this.camera, { shader: this.shaderGeometryPass })
-    });
-
-    this.glService.gl.bindFramebuffer(this.glService.gl.FRAMEBUFFER, null);
-
-    this.glService.gl?.clear(this.glService.gl.COLOR_BUFFER_BIT | this.glService.gl.DEPTH_BUFFER_BIT);
-
+    this.glService.glClear()
     if (this.shaderLightingPass && this.shaderLightingPass.program) {
-      this.glService.gl?.useProgram(this.shaderLightingPass.program);
-      this.glService.gl?.uniform1i(this.getUniformLocation(this.shaderLightingPass, 'gPosition'), 0);
-      this.glService.gl?.uniform1i(this.getUniformLocation(this.shaderLightingPass, 'gNormal'), 1);
-      this.glService.gl?.uniform1i(this.getUniformLocation(this.shaderLightingPass, 'gAlbedoSpec'), 2);
-      this.glService.gl?.uniform1i(this.getUniformLocation(this.shaderLightingPass, 'shadowMap'), 3);
+      this.shaderLightingPass.useShader();
 
-      this.glService.gl?.uniform1i(this.getUniformLocation(this.shaderLightingPass, 'nr_light'), 1);
+      this.shaderLightingPass.sendInt('gPosition', 0);
+      this.shaderLightingPass.sendInt('gNormal', 1);
+      this.shaderLightingPass.sendInt('gAlbedoSpec', 2);
+      this.shaderLightingPass.sendInt('shadowMap', 3);
 
-      this.glService.gl?.uniform3f(this.getUniformLocation(this.shaderLightingPass, 'lights[0].Position'), 1, 4, 1);
-      this.glService.gl?.uniform3f(this.getUniformLocation(this.shaderLightingPass, 'lights[0].Color'), 1, 1, 1);
-      this.glService.gl?.uniform1f(this.getUniformLocation(this.shaderLightingPass, 'lights[0].Linear'), 0.14);
-      this.glService.gl?.uniform1f(this.getUniformLocation(this.shaderLightingPass, 'lights[0].Quadratic'), 0.07);
+      this.shaderLightingPass.sendInt('nr_light', 1);
 
+      this.shaderLightingPass.sendVec3N('lights[0].Position', [1, 4, 1]);
+      this.shaderLightingPass.sendVec3N('lights[0].Color', [1, 1, 1]);
+      this.shaderLightingPass.sendFloat('lights[0].Linear', 0.14);
+      this.shaderLightingPass.sendFloat('lights[0].Quadratic', 0.07);
 
-      let m = this.sceneService.getMeshs()[0]?.lightSpaceMatrix;
-      m && this.glService.gl?.uniformMatrix4fv(this.getUniformLocation(this.shaderLightingPass, 'lightSpaceMatrix'), this.glService.gl?.FALSE, m);
-      this.glService.gl?.uniform3f(this.getUniformLocation(this.shaderLightingPass, 'viewPos'), this.camera.cameraPos[0], this.camera.cameraPos[1], this.camera.cameraPos[2]);
-      this.renderDebugDepthQuad([this.gPosition, this.gNormal, this.gAlbedoSpec, this.depthMap]);
-      this.sceneService.addDepthMap(this.depthMap);
+      let lightSpaceMatrix = this.sceneService.getMeshs()[0]?.lightSpaceMatrix;
+      lightSpaceMatrix && this.shaderLightingPass.setMat4('lightSpaceMatrix', lightSpaceMatrix);
+      this.shaderLightingPass.sendVec3V('viewPos', this.camera.cameraPos);
+
+      this.glService.renderDebugDepthQuad([this.gPosition, this.gNormal, this.gAlbedoSpec, this.depthMap]);
+
     }
     this.renderScene();
 
-    // if (this.debugDepthQuad && this.debugDepthQuad.program) {
+    this.sceneService.addDepthMap(this.pixels);
 
-    //   this.glService.gl?.useProgram(this.debugDepthQuad.program);
-    //   this.glService.gl?.uniform1f(this.getUniformLocation(this.debugDepthQuad, 'depthMap'), 0);
-    //   this.glService.gl?.uniform1f(this.getUniformLocation(this.debugDepthQuad, 'near_plane'), -20);
-    //   this.glService.gl?.uniform1f(this.getUniformLocation(this.debugDepthQuad, 'far_plane'), 20);
-    // }
-    //this.renderDebugDepthQuad([this.depthMap]);
-    //this.renderDebugDepthQuad([this.gNormal]);
-    //this.renderDebugDepthQuad([this.gAlbedoSpec]);
-    //this.renderDebugDepthQuad([this.gPosition]);
     requestAnimationFrame(() => this.render());
   }
 
-  renderScene() {
-    this.glService.gl.viewport(0, 0, this.glService.canvas.width, this.glService.canvas.height);
-    //this.glService.gl?.enable(this.glService.gl.COLOR_BUFFER_BIT | this.glService.gl.DEPTH_BUFFER_BIT);
+  saveTexture() {
 
-    // this.sceneService.getMeshs().forEach((_: any) => {
-    //   _.renderForward(this.camera, { shader: this.shader }, false, this.depthMap)
-    // });
+    // Crearea unui canvas pentru imagine
+    const canvas = document.createElement("canvas");
+    canvas.width = this.glService.canvas.width;
+    canvas.height = this.glService.canvas.height;
+    const ctx = canvas.getContext("2d");
+
+    // Desenarea datelor de adâncime pe canvas
+    if (ctx) {
+      const imageData = ctx.createImageData(this.glService.canvas.width, this.glService.canvas.height);
+
+      for (let i = 0; i < this.pixels.length; i++) {
+        imageData.data[i] = Math.floor(this.pixels[i] * 255); // Convert to 8-bit value
+      }
+      ctx.putImageData(imageData, 0, 0);
+
+      const link = document.createElement("a");
+      link.href = canvas.toDataURL("image/png");
+      link.download = "depth_map.png";
+      link.click();
+    }
+
+
+
+  }
+
+  renderScene() {
 
     if (this.mousePickingService.meshSelected) {
       this.glService.gl?.clear(this.glService.gl.DEPTH_BUFFER_BIT);
@@ -403,36 +370,4 @@ export class EditorComponent implements AfterViewInit {
       });
     }
   }
-
-  renderDebugDepthQuad(texture: any[]) {
-
-    this.glService.gl.activeTexture(this.glService.gl.TEXTURE0);
-    this.glService.gl.bindTexture(this.glService.gl.TEXTURE_2D, texture[0]);
-
-    this.glService.gl.activeTexture(this.glService.gl.TEXTURE1);
-    this.glService.gl.bindTexture(this.glService.gl.TEXTURE_2D, texture[1]);
-
-    this.glService.gl.activeTexture(this.glService.gl.TEXTURE2);
-    this.glService.gl.bindTexture(this.glService.gl.TEXTURE_2D, texture[2]);
-
-    this.glService.gl.activeTexture(this.glService.gl.TEXTURE3);
-    this.glService.gl.bindTexture(this.glService.gl.TEXTURE_2D, texture[3]);
-    this.glService.gl?.bindBuffer(this.glService.gl.ARRAY_BUFFER, this.quadVBO);
-    this.glService.gl?.enableVertexAttribArray(0);
-    this.glService.gl?.vertexAttribPointer(0, 2, this.glService.gl?.FLOAT, false, 4 * Float32Array.BYTES_PER_ELEMENT, 0);
-    this.glService.gl?.enableVertexAttribArray(1);
-    this.glService.gl?.vertexAttribPointer(1, 2, this.glService.gl?.FLOAT, false, 4 * Float32Array.BYTES_PER_ELEMENT, 2 * Float32Array.BYTES_PER_ELEMENT);
-
-    this.glService.gl?.drawArrays(this.glService.gl?.TRIANGLES, 0, 6);
-
-    this.glService.gl?.disableVertexAttribArray(0);
-    this.glService.gl?.disableVertexAttribArray(1);
-
-
-  }
-
-  private getUniformLocation(shader: Shader, uniformLocation: any) {
-    return this.glService.gl?.getUniformLocation(shader.program, uniformLocation)
-  }
-
 }

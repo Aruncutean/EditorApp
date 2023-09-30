@@ -8,3 +8,14 @@ export interface Scene {
     dirLight: Light;
     depthMap?: any;
 }
+
+export interface IParam {
+    internalformat: any,
+    format: any,
+    attachment?: any;
+    minFilter: any,
+    maxFilter: any,
+    wrapS?: any,
+    wrapT?: any,
+    type: any
+}

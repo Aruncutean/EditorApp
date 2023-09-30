@@ -1,3 +1,4 @@
+import { vec3 } from "gl-matrix";
 import { OpenglService } from "../service/opengl.service";
 
 export class Shader {
@@ -44,6 +45,47 @@ export class Shader {
         }
     }
 
+    useShader() {
+        this.gl.useProgram(this.program);
+    }
 
+    sendBool(name: string, value: boolean) {
+        this.gl?.uniform1i(this.getUniformLocation(name), Number(value));
+    }
+
+    sendInt(name: string, value: number) {
+        this.gl?.uniform1i(this.getUniformLocation(name), value);
+    }
+
+    sendFloat(name: string, value: number) {
+        this.gl?.uniform1f(this.getUniformLocation(name), value);
+    }
+
+    sendVec2(name: string, value: number[]) {
+        this.gl?.uniform2fv(this.getUniformLocation(name), value);
+    }
+
+    sendVec3N(name: string, value: number[]) {
+        this.gl?.uniform3fv(this.getUniformLocation(name), value);
+    }
+
+    sendVec3V(name: string, value: vec3) {
+        this.gl?.uniform3f(this.getUniformLocation(name), value[0], value[1], value[2]);
+    }
+    setMat2(name: string, value: any) {
+        this.gl?.uniformMatrix2fv(this.getUniformLocation(name), this.gl?.FALSE, value);
+    }
+
+    setMat3(name: string, value: any) {
+        this.gl?.uniformMatrix3fv(this.getUniformLocation(name), this.gl?.FALSE, value);
+    }
+
+    setMat4(name: string, value: any) {
+        this.gl?.uniformMatrix4fv(this.getUniformLocation(name), this.gl?.FALSE, value);
+    }
+
+    private getUniformLocation(uniformLocation: any) {
+        return this.gl?.getUniformLocation(this.program, uniformLocation)
+    }
 
 }
