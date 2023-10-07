@@ -1,14 +1,19 @@
 import { vec3 } from "gl-matrix";
 import { OpenglService } from "../service/opengl.service";
+import { LoadFileService } from "../service/load-file.service";
 
 export class Shader {
     program: any;
 
-    constructor(private gl: any) {
+    constructor(private gl: any,
+        private loadFile: LoadFileService) {
 
     }
 
-    init(vertexShaderText: any, fragmentShaderText: any) {
+    async init(vertexShaderSrc: any, fragmentShaderSrc: any) {
+        let vertexShaderText = await this.loadFile.getFile(vertexShaderSrc).toPromise();
+        let fragmentShaderText = await this.loadFile.getFile(fragmentShaderSrc).toPromise();
+
         var vertextShader = this.gl?.createShader(this.gl.VERTEX_SHADER);
         var fragmentShader = this.gl?.createShader(this.gl.FRAGMENT_SHADER);
 

@@ -19,12 +19,8 @@ export class Grid {
     }
 
     async init() {
-        this.shader = new Shader(this.glService.gl);
-        this.shader && this.shader.init(
-            await this.loadFile.getFile("/assets/shader/shader-grid.vs.glsl").toPromise(),
-            await this.loadFile.getFile("/assets/shader/shader-grid.fs.glsl").toPromise()
-        );
-
+        this.shader = new Shader(this.glService.gl, this.loadFile);
+        this.shader && this.shader.init("/assets/shader/shader-grid.vs.glsl","/assets/shader/shader-grid.fs.glsl");
 
         let vertices: any[] = [];
 

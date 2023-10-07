@@ -9,6 +9,7 @@ import { LoadFileService } from './load-file.service';
 import { Vector3 } from 'three';
 import { SceneService } from './scene.service';
 import { Scene } from '../interface/SceneInterface';
+import { glMatrix, mat4 } from 'gl-matrix';
 
 @Injectable({
     providedIn: 'root'
@@ -38,10 +39,10 @@ export class MousePickingService {
             this.meshs = _.meshs;
         })
 
-        this.shader = new Shader(this.glService.gl);
+        this.shader = new Shader(this.glService.gl, this.loadFile);
         this.shader.init(
-            await this.loadFile.getFile("/assets/shader-picking.vs.glsl").toPromise(),
-            await this.loadFile.getFile("/assets/shader-picking.fs.glsl").toPromise());
+            "/assets/shader-picking.vs.glsl",
+            "/assets/shader-picking.fs.glsl");
 
         this.glService.canvas && this.glService.canvas.addEventListener('mousedown', (event) => {
 
@@ -51,13 +52,17 @@ export class MousePickingService {
                 this.mouseY = event.clientY - rect.top;
                 const pixelX = this.mouseX * this.glService.canvas.width / this.glService.canvas.clientWidth;
                 const pixelY = this.glService.canvas.height - this.mouseY * this.glService.canvas.height / this.glService.canvas.clientHeight - 1;
+                let viewMatrix = new Float32Array(16);
+                let projMatrix = new Float32Array(16);
+                mat4.perspective(projMatrix, glMatrix.toRadian(60), this.glService.canvas.clientWidth / this.glService.canvas.clientHeight, 0.1, 1000.0);
+                mat4.lookAt(viewMatrix, this.camera.cameraPos, this.camera.cameraFront, this.camera.cameraUp);
 
 
                 this.glService.gl?.clearColor(0.75, 0.8, 0.8, 1.0);
                 this.glService.gl?.clear(this.glService.gl.COLOR_BUFFER_BIT | this.glService.gl.DEPTH_BUFFER_BIT);
 
                 this.meshs && this.meshs.forEach((_, index) => {
-                    _.renderForward(this.camera, { shader: this.shader, isMousePicking: true, indexMousePicking: index + 1 })
+                    _.renderForward(this.camera, { shader: this.shader, isMousePicking: true, indexMousePicking: index + 1, viewMatrix: viewMatrix, projMatrix: projMatrix })
                 });
 
                 this.glService.gl?.clear(this.glService.gl.DEPTH_BUFFER_BIT);
@@ -67,7 +72,7 @@ export class MousePickingService {
                         _.coordonate.position &&
                             this.meshSelected?.coordonate.position &&
                             (_.coordonate.position = this.meshSelected?.coordonate.position)
-                        _.renderForward(this.camera, { shader: this.shader, isMousePicking: true, indexMousePicking: index + 100 })
+                        _.renderForward(this.camera, { shader: this.shader, isMousePicking: true, indexMousePicking: index + 100, viewMatrix: viewMatrix, projMatrix: projMatrix })
                     });
                 }
 

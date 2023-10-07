@@ -39,11 +39,8 @@ export class ShadowMappingComponent implements OnInit, AfterViewInit {
       console.error('ShadowMappingComponent Your browser does not support WebGL');
     }
 
-    this.debugDepthQuad = new Shader(this.gl);
-    this.debugDepthQuad && this.debugDepthQuad.init(
-      await this.loadFile.getFile("/assets/shader/debug_quad.vs.glsl").toPromise(),
-      await this.loadFile.getFile("/assets/shader/debug_quad.fs.glsl").toPromise()
-    );
+    this.debugDepthQuad = new Shader(this.gl, this.loadFile);
+    this.debugDepthQuad && this.debugDepthQuad.init("/assets/shader/debug_quad.vs.glsl", "/assets/shader/debug_quad.fs.glsl");
     this.gl?.clearColor(0.2, 0.2, 0.2, 1);
     this.gl?.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
 

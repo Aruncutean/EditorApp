@@ -26,7 +26,7 @@ export class LightProcessing {
         this.dirLight.ambient && shader.sendVec3V("dirLight.direction", this.dirLight.ambient);
         this.dirLight.diffuse && shader.sendVec3V("dirLight.direction", this.dirLight.diffuse)
         this.dirLight.specular && shader.sendVec3V("dirLight.direction", this.dirLight.specular)
-        shader.sendInt("nrLight", this.light.length)
+        shader.sendFloat("nrLight", this.light.length)
 
         this.light && this.light.forEach((_, index) => {
             let pos = _.mesh && _.mesh.coordonate.position;

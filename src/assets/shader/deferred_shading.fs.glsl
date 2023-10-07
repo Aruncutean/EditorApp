@@ -36,9 +36,8 @@ void main() {
     vec3 lightDir = normalize(lightPosition - FragPos);
     vec3 diffuse = max(dot(Normal, lightDir), 0.0f) * Diffuse * lightColor;
     vec4 fragPosLightSpace = lightSpaceMatrix * vec4(FragPos, 1);
- 
 
-     float shadow = ShadowCalculation(fragPosLightSpace, Normal, lightDir);
+    float shadow = ShadowCalculation(fragPosLightSpace, Normal, lightDir);
     vec3 lighting = (diffuse) * (1.0f - shadow);
     //vec3 lighting = (1.0f - shadow) * (diffuse + specular);
     for(int i = 0; i < nr_light; i++) {
@@ -64,16 +63,31 @@ void main() {
 
 float ShadowCalculation(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir) {
 
- vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
 
     projCoords = projCoords * 0.5f + 0.5f;
 
-    float closestDepth = texture(shadowMap, projCoords.xy).r;
+ //   float closestDepth = texture(shadowMap, projCoords.xy).r;
 
     float currentDepth = projCoords.z;
 
     float bias = max(0.05f * (1.0f - dot(normal, lightDir)), 0.005f);
 
+    // float shadow = 0.0f;
+    // //float bias = 0.05f;
+    // float samples = 4.0f;
+    // float offset = 0.1f;
+    // for(float x = -offset; x < offset; x += offset / (samples * 0.5f)) {
+    //     for(float y = -offset; y < offset; y += offset / (samples * 0.5f)) {
+    //         for(float z = -offset; z < offset; z += offset / (samples * 0.5f)) {
+    //             float closestDepth = texture(depthMap, fragToLight + vec3(x, y, z)).r;
+    //             closestDepth *= far_plane;   // undo mapping [0;1]
+    //             if(currentDepth - bias > closestDepth)
+    //                 shadow += 1.0f;
+    //         }
+    //     }
+    // }
+   // shadow /= (samples * samples * samples);
     float shadow = 0.0f;
     vec2 texelSize = vec2(1.0f / float(textureSize(shadowMap, 0).x), 1.0f / float(textureSize(shadowMap, 0).y));
     for(int x = -1; x <= 1; ++x) {

@@ -1,10 +1,6 @@
 #version 300 es
 precision mediump float;
 
-in vec2 fragTexCoord;
-in vec3 Normal;
-in vec3 FragPos;
-in vec4 FragPosLightSpace;
 struct Material {
     sampler2D diffuse;
     vec3 specular;
@@ -31,13 +27,18 @@ struct DirLight {
     vec3 specular;
 };
 
+in vec2 fragTexCoord;
+in vec3 Normal;
+in vec3 FragPos;
+in vec4 FragPosLightSpace;
+
 uniform PointLight pointLights[100];
 uniform float isTexture;
 uniform sampler2D shadowMap;
 uniform vec3 viewPos;
 
 uniform vec3 objectColor;
-uniform bool loadLight;
+uniform int loadLight;
 uniform float nrLight;
 uniform Material material;
 uniform DirLight dirLight;
@@ -57,7 +58,7 @@ void main() {
     vec3 viewDir = normalize(viewPos - FragPos);
 
     if(isTexture == float(0)) {
-        if(loadLight == true) {
+        if(loadLight == 1) {
             result = CalcDirLight(dirLight, norm, viewDir);
             for(int i = 0; i < int(nrLight); i++) result += CalcPointLight(pointLights[i], norm, FragPos, viewDir);
 
@@ -69,7 +70,7 @@ void main() {
         }
 
     } else {
-        if(loadLight == true) {
+        if(loadLight == 1) {
             vec3 result = CalcDirLightFor(dirLight, norm, viewDir);
             for(int i = 0; i < int(nrLight); i++) result += CalcPointLightFor(pointLights[i], norm, FragPos, viewDir);
 
@@ -108,10 +109,10 @@ float ShadowCalculation(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir) {
 
     projCoords = projCoords * 0.5f + 0.5f;
 
-    float closestDepth = texture(shadowMap, projCoords.xy).r;
+   float closestDepth = texture(shadowMap, projCoords.xy).r;
 
-    float currentDepth = projCoords.z;
-
+   float currentDepth = projCoords.z;
+    
     float bias = max(0.05f * (1.0f - dot(normal, lightDir)), 0.005f);
 
     float shadow = 0.0f;
@@ -131,11 +132,11 @@ float ShadowCalculation(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir) {
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir) {
     vec3 color = texture(material.diffuse, fragTexCoord).rgb;
 
-    vec3 lightColor = vec3(0.3f);
+    vec3 lightColor = vec3(0.77f, 0.75f, 0.75f);
     // ambient
     vec3 ambient = 0.3f * lightColor;
     // diffuse
-    vec3 lightDir = normalize(-light.direction);
+    vec3 lightDir = normalize(light.direction);
     float diff = max(dot(lightDir, normal), 0.0f);
     vec3 diffuse = diff * lightColor;
     // specular

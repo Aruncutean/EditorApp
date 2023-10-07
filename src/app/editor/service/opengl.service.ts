@@ -28,6 +28,9 @@ export class OpenglService {
 
 
   init(canvasRef: ElementRef) {
+    let previousMouseX = 0;
+    let previousMouseY = 0;
+    let isDragging = false;
     this.canvas = canvasRef.nativeElement;
     let radius = this.camera.fieldOfView;
     var direction: vec3 = [0, 0, 0];
@@ -37,16 +40,39 @@ export class OpenglService {
     vec3.add(this.camera.cameraPos, direction, this.camera.cameraFront);
     window.addEventListener('keyup', (event) => {
       this.keys[event.key] = false;
-      this.camera.precessInput(this.keys)
+      //this.camera.precessInput(this.keys)
     });
 
     window.addEventListener('keydown', (event) => {
       this.keys[event.key] = true;
-      this.camera.precessInput(this.keys)
+
+      //  this.camera.precessInput(this.keys)
     })
+
+    this.canvas.addEventListener('mousedown', (event) => {
+      if (event.button == 0) {
+        isDragging = true;
+        previousMouseX = event.clientX;
+        previousMouseY = event.clientY;
+      }
+    });
+
+    this.canvas.addEventListener('mouseup', () => {
+      isDragging = false;
+
+    });
 
     this.canvas.addEventListener('mousemove', (event) => {
 
+      // if (this.keys["Shift"] == true && isDragging) {
+
+      //   // const deltaX = event.clientX - previousMouseX;
+      //   // const deltaY = event.clientY - previousMouseY;
+      //   // this.camera.cameraPos[0] -= deltaX * 0.0001
+      //   // this.camera.cameraPos[1] += deltaY * 0.0001
+      //   // this.camera.cameraFront[0] -= deltaX * 0.0001
+      //   // this.camera.cameraFront[1] += deltaY * 0.0001
+      // } else {
       const x: number = event.clientX - this.canvas.getBoundingClientRect().left;
       const y: number = event.clientY - this.canvas.getBoundingClientRect().top;
 
@@ -80,7 +106,7 @@ export class OpenglService {
       direction[2] = radius * Math.sin(glMatrix.toRadian(this.yaw)) * Math.cos(glMatrix.toRadian(this.pitch))
       vec3.add(this.camera.cameraPos, direction, this.camera.cameraFront);
       //vec3.normalize(this.camera.cameraFront, direction);
-
+      //}
     })
     this.canvas.addEventListener("wheel", (event) => {
       const delta = event.deltaY;

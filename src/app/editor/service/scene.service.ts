@@ -18,9 +18,9 @@ export class SceneService {
             dirLight: {
                 id: "12",
                 position: { x: -1.2, y: -2.2, z: -1.2 },
-                ambient: [0.05, 0.05, 0.05],
-                diffuse: [0.5, 0.5, 0.5],
-                specular: [0.2, 0.2, 0.2]
+                ambient: [0.5, 0.5, 0.5],
+                diffuse: [1, 1, 1],
+                specular: [1, 1, 1]
             },
         });
         this.data$ = this.dataSubject.asObservable();
@@ -71,4 +71,6 @@ export class SceneService {
         return this.dataSubject.getValue().meshSelected;
     }
 
+
+    
 }

@@ -13,6 +13,9 @@ import { GizmoService } from './service/gizmo.service';
 import { SceneService } from './service/scene.service';
 import { MeshType } from './interface/MeshInterface';
 import { Grid } from './class/Grid';
+import { glMatrix, mat4 } from 'gl-matrix';
+import { Scene } from './interface/SceneInterface';
+import { LoadObjectService } from './service/load-object.service';
 
 @Component({
   selector: 'app-editor',
@@ -21,7 +24,7 @@ import { Grid } from './class/Grid';
 })
 export class EditorComponent implements AfterViewInit {
 
-  gizmo: Mesh[] = [];
+
 
   grid!: Grid;
   loader: any;
@@ -52,10 +55,19 @@ export class EditorComponent implements AfterViewInit {
   /// Test
   bufferTest: any;
   textureTest: any;
+
+  dirLight: any;
+
+  performance: any = window.performance
+
+  lastTimestamp = performance.now();
+  frameCount = 0;
+
   constructor(
-    private cdRef: ChangeDetectorRef,
+  
     private glService: OpenglService,
     private loadFile: LoadFileService,
+    private loadObject: LoadObjectService,
     private camera: CameraService,
     private mousePickingService: MousePickingService,
     private gizmoService: GizmoService,
@@ -66,63 +78,51 @@ export class EditorComponent implements AfterViewInit {
 
   ngOnInit(): void { }
 
-  ngAfterViewInit(): void {
+  ngAfterViewInit() {
     this.initWebGL();
-    this.render();
+
   }
 
-  async initWebGL() {
+  initWebGL() {
     this.canvasRef.nativeElement.width = 1200;
     this.canvasRef.nativeElement.height = 600;
     this.glService.init(this.canvasRef);
 
     this.glService.gl?.bindFramebuffer(this.glService.gl?.FRAMEBUFFER, null);
     this.gizmoService.init();
-    this.mousePickingService.init(this.gizmo);
+    this.mousePickingService.init(this.loadObject.gizmo);
 
     this.grid = new Grid(this.glService, this.loadFile);
     this.grid.init();
-    this.shader = new Shader(this.glService.gl);
-    this.shader && this.shader.init(
-      await this.loadFile.getFile("/assets/shader.vs.glsl").toPromise(),
-      await this.loadFile.getFile("/assets/shader.fs.glsl").toPromise()
-    );
+    this.shader = new Shader(this.glService.gl, this.loadFile);
+    this.shader && this.shader.init("/assets/shader.vs.glsl", "/assets/shader.fs.glsl");
 
-    this.shaderScene = new Shader(this.glService.gl);
-    this.shaderScene && this.shaderScene.init(
-      await this.loadFile.getFile("/assets/shader/shader-scene.vs.glsl").toPromise(),
-      await this.loadFile.getFile("/assets/shader/shader-scene.fs.glsl").toPromise()
-    );
+    this.shaderScene = new Shader(this.glService.gl, this.loadFile);
+    this.shaderScene && this.shaderScene.init("/assets/shader/shader-scene.vs.glsl", "/assets/shader/shader-scene.fs.glsl");
 
-    this.simpleDepthShader = new Shader(this.glService.gl);
-    this.simpleDepthShader && this.simpleDepthShader.init(
-      await this.loadFile.getFile("/assets/shader/shader-shadow-mapping-depth.vs.glsl").toPromise(),
-      await this.loadFile.getFile("/assets/shader/shader-shadow-mapping-depth.fs.glsl").toPromise()
-    );
+    this.simpleDepthShader = new Shader(this.glService.gl, this.loadFile);
+    this.simpleDepthShader && this.simpleDepthShader.init("/assets/shader/shader-shadow-mapping-depth.vs.glsl", "/assets/shader/shader-shadow-mapping-depth.fs.glsl");
 
-    this.debugDepthQuad = new Shader(this.glService.gl);
-    this.debugDepthQuad && this.debugDepthQuad.init(
-      await this.loadFile.getFile("/assets/shader/debug_quad.vs.glsl").toPromise(),
-      await this.loadFile.getFile("/assets/shader/debug_quad.fs.glsl").toPromise()
-    );
+    this.debugDepthQuad = new Shader(this.glService.gl, this.loadFile);
+    this.debugDepthQuad && this.debugDepthQuad.init("/assets/shader/debug_quad.vs.glsl", "/assets/shader/debug_quad.fs.glsl");
 
-    this.shaderGeometryPass = new Shader(this.glService.gl);
-    this.shaderGeometryPass && this.shaderGeometryPass.init(
-      await this.loadFile.getFile("/assets/shader/g_buffer.vs.glsl").toPromise(),
-      await this.loadFile.getFile("/assets/shader/g_buffer.fs.glsl").toPromise()
-    );
-    this.shaderLightingPass = new Shader(this.glService.gl);
-    this.shaderLightingPass && this.shaderLightingPass.init(
-      await this.loadFile.getFile("/assets/shader/deferred_shading.vs.glsl").toPromise(),
-      await this.loadFile.getFile("/assets/shader/deferred_shading.fs.glsl").toPromise()
-    );
+    this.shaderGeometryPass = new Shader(this.glService.gl, this.loadFile);
+    this.shaderGeometryPass && this.shaderGeometryPass.init("/assets/shader/g_buffer.vs.glsl", "/assets/shader/g_buffer.fs.glsl");
 
+    this.shaderLightingPass = new Shader(this.glService.gl, this.loadFile);
+    this.shaderLightingPass && this.shaderLightingPass.init("/assets/shader/deferred_shading.vs.glsl", "/assets/shader/deferred_shading.fs.glsl");
 
     this.glService.gl?.enable(this.glService.gl?.DEPTH_TEST);
 
-    this.loadObject('assets/test43.glb', MeshType.Object);
-    this.loadObject('assets/Light.glb', MeshType.Light);
-    this.loadObject('assets/giz.glb', MeshType.Gizmo);
+    this.loadObject.loadObject('assets/test12.glb', MeshType.Object);
+    this.loadObject.loadObject('assets/Light.glb', MeshType.Light);
+    this.loadObject.loadObject('assets/giz.glb', MeshType.Gizmo);
+
+    this.sceneService.data$.subscribe((_: Scene) => {
+      this.dirLight = _.dirLight;
+    })
+
+
     this.glService.initQuadBuffer();
 
 
@@ -160,7 +160,6 @@ export class EditorComponent implements AfterViewInit {
       this.glService.gl.COLOR_ATTACHMENT0,
       this.glService.gl.COLOR_ATTACHMENT1,
       this.glService.gl.COLOR_ATTACHMENT2,
-
     ]);
 
     const depthRenderbuffer = this.glService.gl.createRenderbuffer();
@@ -183,13 +182,11 @@ export class EditorComponent implements AfterViewInit {
     })
     this.glService.gl.framebufferTexture2D(this.glService.gl.FRAMEBUFFER, this.glService.gl.DEPTH_ATTACHMENT, this.glService.gl.TEXTURE_2D, this.depthMap, 0);
 
-
     this.glService.gl.bindFramebuffer(this.glService.gl.FRAMEBUFFER, null);
-
 
     this.bufferTest = this.glService.generateBuffer();
     this.textureTest = this.glService.generateTexture({
-      internalformat: this.glService.gl.RGBA32F,
+      internalformat: this.glService.gl.RGBA16F,
       format: this.glService.gl.RGBA,
       type: this.glService.gl.FLOAT,
       minFilter: this.glService.gl.NEAREST,
@@ -199,83 +196,57 @@ export class EditorComponent implements AfterViewInit {
     this.glService.gl.framebufferTexture2D(this.glService.gl.FRAMEBUFFER, this.glService.gl.COLOR_ATTACHMENT0, this.glService.gl.TEXTURE_2D, this.textureTest, 0);
 
     this.glService.gl.bindFramebuffer(this.glService.gl.FRAMEBUFFER, null);
-
-  }
-
-
-  loadObject(urlObject: string, type: MeshType) {
-    this.loader = new GLTFLoader();
-    this.loader && this.loader.load(urlObject, (gltf: { scene: any; }) => {
-      const model = gltf.scene;
-      console.log(model)
-      model.children.map((_: any) => {
-        let mesh!: Mesh;
-        let t;
-        _.material.map && _.material.map.userData &&
-          (t = _.material.map.userData.mimeType.split('/'))
-
-        if (t && t[1] == 'jpeg') {
-          t[1] = 'jpg'
-        }
-        _.geometry?.attributes &&
-          (mesh = new Mesh({
-            vertices: _.geometry.attributes.position.array,
-            normal: _.geometry.attributes.normal.array,
-            uv: _.geometry.attributes.uv.array,
-            indices: _.geometry.index.array
-          },
-            {
-              texture: _.material.map ? new Texture("assets/" + _.material.map.name + "." + t[1], this.glService) : undefined,
-              color: _.material.color
-            },
-            {
-              position: { x: _.position.x, y: _.position.y + 0.14, z: _.position.z },
-              rotation: _.rotation,
-              scale: _.scale
-            },
-            this.glService,
-            this.sceneService
-          ))
-        mesh && (mesh.loadLight = (MeshType.Object == type));
-        mesh && (mesh.name = _.name);
-        mesh && (mesh.type = type);
-        mesh && (mesh.id = String(new Date().valueOf() + Math.random()));
-
-        if (MeshType.Light == type) {
-          mesh && this.sceneService.addLight(mesh);
-        };
-
-        (MeshType.Gizmo == type) && mesh && this.gizmo.push(mesh);
-
-        if (MeshType.Object == type) {
-          mesh && this.sceneService.addMesh(mesh);
-        }
-      })
-    });
+    this.render();
   }
 
   addLight() {
-    this.loadObject('assets/Light.glb', MeshType.Light);
+    this.loadObject.loadObject('assets/Light.glb', MeshType.Light);
   }
 
-  render(): void {
-    {
-      this.glService.gl.viewport(0, 0, this.glService.canvas.width, this.glService.canvas.height);
-      this.glService.gl.cullFace(this.glService.gl.FRONT);
-      this.glService.gl.bindFramebuffer(this.glService.gl.FRAMEBUFFER, this.depthMapFBO);
+  renderFrameBuffer(buffer: any, interiorCode: Function) {
+    this.glService.gl.bindFramebuffer(this.glService.gl.FRAMEBUFFER, buffer);
+    this.glService.glClear();
+    interiorCode();
+    this.glService.gl.bindFramebuffer(this.glService.gl.FRAMEBUFFER, null);
+  }
 
-      this.glService.glClear();
+  calculareFPS() {
+    var currentTimestamp = performance.now();
+    var elapsedMilliseconds = currentTimestamp - this.lastTimestamp;
 
-      this.sceneService.getMeshs().forEach((_: any) => {
-        _.renderForward(this.camera, { shader: this.simpleDepthShader }, true)
-      });
+    if (elapsedMilliseconds >= 1000) {
+      var fps = this.frameCount / (elapsedMilliseconds / 1000);
+      //  console.log('FPS: ' + fps.toFixed(2));
 
-      this.glService.gl.bindFramebuffer(this.glService.gl.FRAMEBUFFER, null);
-      this.glService.gl.cullFace(this.glService.gl.BACK);
+
+      this.lastTimestamp = currentTimestamp;
+      this.frameCount = 0;
     }
 
-    {
-      this.glService.gl.bindFramebuffer(this.glService.gl.FRAMEBUFFER, this.bufferTest);
+    this.frameCount++;
+  }
+
+  randareDepthMap(projMatrix: any, viewMatrix: any, lightSpaceMatrix: any) {
+
+    this.glService.gl.viewport(0, 0, this.glService.canvas.width, this.glService.canvas.height);
+    this.glService.gl.cullFace(this.glService.gl.FRONT);
+    this.renderFrameBuffer(this.depthMapFBO, () => {
+      mat4.ortho(projMatrix, -30.0, 30.0, -30.0, 30.0, -20.0, 20)
+      if (this.dirLight) {
+        this.dirLight.position && mat4.lookAt(viewMatrix, [-this.dirLight.position?.x, -this.dirLight.position?.y, -this.dirLight.position?.z], this.camera.cameraFront, this.camera.cameraUp);
+      } else {
+        mat4.lookAt(viewMatrix, [-2, -2, -2], this.camera.cameraFront, this.camera.cameraUp);
+      }
+      mat4.mul(lightSpaceMatrix, projMatrix, viewMatrix);
+      this.sceneService.getMeshs().forEach((_: any) => {
+        _.renderForward(this.camera, { shader: this.simpleDepthShader, viewMatrix: viewMatrix, projMatrix: projMatrix })
+      });
+    });
+    this.glService.gl.cullFace(this.glService.gl.BACK);
+  }
+
+  randareTextureDepthMap() {
+    this.renderFrameBuffer(this.bufferTest, () => {
       if (this.debugDepthQuad && this.debugDepthQuad.program) {
         this.debugDepthQuad.useShader();
         this.debugDepthQuad.sendInt('depthMap', 0);
@@ -286,21 +257,47 @@ export class EditorComponent implements AfterViewInit {
         this.pixels = new Float32Array(this.glService.canvas.width * this.glService.canvas.height * 4);
         this.glService.gl.readPixels(0, 0, this.glService.canvas.width, this.glService.canvas.height, this.glService.gl.RGBA, this.glService.gl.FLOAT, this.pixels);
       }
-      this.glService.gl.bindFramebuffer(this.glService.gl.FRAMEBUFFER, null);
-    }
+    })
+    this.sceneService.addDepthMap(this.pixels);
+  }
 
-    {
-
-      this.glService.gl.bindFramebuffer(this.glService.gl.FRAMEBUFFER, this.gBuffer);
-      this.glService.glClear();
+  randareGBuffer(projMatrix: any, viewMatrix: any) {
+    this.renderFrameBuffer(this.gBuffer, () => {
       this.sceneService.getMeshs().forEach((_: any) => {
-        _.renderDeferred(this.camera, { shader: this.shaderGeometryPass })
+        _.renderDeferred(this.camera, { shader: this.shaderGeometryPass, viewMatrix: viewMatrix, projMatrix: projMatrix })
       });
+    });
 
-      this.glService.gl.bindFramebuffer(this.glService.gl.FRAMEBUFFER, null);
-    }
+  }
+
+  render(): void {
+    this.glService.glClear();
+    let viewMatrix = new Float32Array(16);
+    let projMatrix = new Float32Array(16);
+    let lightSpaceMatrix = new Float32Array(16);
+
+    this.calculareFPS();
+    this.randareDepthMap(projMatrix, viewMatrix, lightSpaceMatrix);
+
+    //this.randareTextureDepthMap();
+
+    mat4.perspective(projMatrix, glMatrix.toRadian(60), this.glService.canvas.clientWidth / this.glService.canvas.clientHeight, 0.1, 100.0);
+    mat4.lookAt(viewMatrix, this.camera.cameraPos, this.camera.cameraFront, this.camera.cameraUp);
+    this.gizmoService.setMatrix(projMatrix, viewMatrix);
+    this.randareGBuffer(projMatrix, viewMatrix);
+
+    this.renderScene({ viewMatrix: viewMatrix, projMatrix: projMatrix, lightSpaceMatrix: lightSpaceMatrix });
 
 
+    requestAnimationFrame(() => this.render());
+  }
+
+
+  renderScene(matrix: {
+    viewMatrix: any;
+    projMatrix: any;
+    lightSpaceMatrix: any
+  }) {
     this.glService.glClear()
     if (this.shaderLightingPass && this.shaderLightingPass.program) {
       this.shaderLightingPass.useShader();
@@ -310,26 +307,45 @@ export class EditorComponent implements AfterViewInit {
       this.shaderLightingPass.sendInt('gAlbedoSpec', 2);
       this.shaderLightingPass.sendInt('shadowMap', 3);
 
-      this.shaderLightingPass.sendInt('nr_light', 1);
+      this.shaderLightingPass.sendInt('nr_light', 3);
 
       this.shaderLightingPass.sendVec3N('lights[0].Position', [1, 4, 1]);
       this.shaderLightingPass.sendVec3N('lights[0].Color', [1, 1, 1]);
       this.shaderLightingPass.sendFloat('lights[0].Linear', 0.14);
       this.shaderLightingPass.sendFloat('lights[0].Quadratic', 0.07);
 
-      let lightSpaceMatrix = this.sceneService.getMeshs()[0]?.lightSpaceMatrix;
-      lightSpaceMatrix && this.shaderLightingPass.setMat4('lightSpaceMatrix', lightSpaceMatrix);
+
+
+      this.shaderLightingPass.sendVec3N('lights[1].Position', [1, 4, 4]);
+      this.shaderLightingPass.sendVec3N('lights[1].Color', [1, 1, 1]);
+      this.shaderLightingPass.sendFloat('lights[1].Linear', 0.14);
+      this.shaderLightingPass.sendFloat('lights[1].Quadratic', 0.07);
+
+      this.shaderLightingPass.sendVec3N('lights[2].Position', [4, 4, 1]);
+      this.shaderLightingPass.sendVec3N('lights[2].Color', [1, 1, 1]);
+      this.shaderLightingPass.sendFloat('lights[2].Linear', 0.14);
+      this.shaderLightingPass.sendFloat('lights[2].Quadratic', 0.07);
+
+      matrix.lightSpaceMatrix && this.shaderLightingPass.setMat4('lightSpaceMatrix', matrix.lightSpaceMatrix);
       this.shaderLightingPass.sendVec3V('viewPos', this.camera.cameraPos);
 
       this.glService.renderDebugDepthQuad([this.gPosition, this.gNormal, this.gAlbedoSpec, this.depthMap]);
-
     }
-    this.renderScene();
+    // this.sceneService.getMeshs().forEach((_: any) => {
+    //   _.renderForward(this.camera, { shader: this.shader, viewMatrix: matrix.viewMatrix, projMatrix: matrix.projMatrix }, this.depthMap, matrix.lightSpaceMatrix)
+    // });
 
-    this.sceneService.addDepthMap(this.pixels);
-
-    requestAnimationFrame(() => this.render());
+    if (this.mousePickingService.meshSelected) {
+      this.glService.gl?.clear(this.glService.gl.DEPTH_BUFFER_BIT);
+      this.loadObject.gizmo && this.loadObject.gizmo.forEach(_ => {
+        _.coordonate.position &&
+          this.mousePickingService.meshSelected?.coordonate.position &&
+          (_.coordonate.position = this.mousePickingService.meshSelected?.coordonate.position)
+        _.renderForward(this.camera, { shader: this.shader, viewMatrix: matrix.viewMatrix, projMatrix: matrix.projMatrix })
+      });
+    }
   }
+
 
   saveTexture() {
 
@@ -356,18 +372,5 @@ export class EditorComponent implements AfterViewInit {
 
 
 
-  }
-
-  renderScene() {
-
-    if (this.mousePickingService.meshSelected) {
-      this.glService.gl?.clear(this.glService.gl.DEPTH_BUFFER_BIT);
-      this.gizmo && this.gizmo.forEach(_ => {
-        _.coordonate.position &&
-          this.mousePickingService.meshSelected?.coordonate.position &&
-          (_.coordonate.position = this.mousePickingService.meshSelected?.coordonate.position)
-        _.renderForward(this.camera, { shader: this.shader })
-      });
-    }
   }
 }
