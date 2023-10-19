@@ -5,7 +5,7 @@ import { Mesh } from "../class/Mesh";
 import { Texture } from "../class/Texture";
 import { OpenglService } from "./opengl.service";
 import { SceneService } from "./scene.service";
-
+import * as CANNON from 'cannon';
 @Injectable({
     providedIn: 'root'
 })
@@ -16,11 +16,11 @@ export class LoadObjectService {
         private glService: OpenglService,
         private sceneService: SceneService) { }
 
-    loadObject(urlObject: string, type: MeshType) {
+    loadObject(urlObject: string, type: MeshType, world?: CANNON.World) {
         this.loader = new GLTFLoader();
         this.loader && this.loader.load(urlObject, (gltf: { scene: any; }) => {
             const model = gltf.scene;
-            console.log(model)
+            console.log(model);
             model.children.map((_: any) => {
                 let mesh!: Mesh;
                 let t;
@@ -42,7 +42,7 @@ export class LoadObjectService {
                             color: _.material.color
                         },
                         {
-                            position: { x: _.position.x, y: _.position.y , z: _.position.z },
+                            position: { x: _.position.x, y: _.position.y, z: _.position.z },
                             rotation: _.rotation,
                             scale: _.scale
                         },
@@ -54,12 +54,26 @@ export class LoadObjectService {
                 mesh && (mesh.type = type);
                 mesh && (mesh.id = String(new Date().valueOf() + Math.random()));
 
+                if (world && _.name != "Plane") {
+                    const boxShape = new CANNON.Box(new CANNON.Vec3(1, 1, 1));
+                    const boxBody = new CANNON.Body({ mass: 0, shape: boxShape });
+                    boxBody.position.set(_.position.x, _.position.y, _.position.z);
+                    mesh && (mesh.body = boxBody);
+                    world.addBody(boxBody);
+                } else if (world && _.name == "Plane") {
+                    const boxShape = new CANNON.Box(new CANNON.Vec3(100, 0.1, 100));
+                    const boxBody = new CANNON.Body({ mass: 0, shape: boxShape });
+                    boxBody.position.set(_.position.x, _.position.y, _.position.z);
+                    mesh && (mesh.body = boxBody);
+                    world.addBody(boxBody);
+                }
+
                 if (MeshType.Light == type) {
                     mesh && this.sceneService.addLight(mesh);
                 };
 
                 (MeshType.Gizmo == type) && mesh && this.gizmo.push(mesh);
-
+              
                 if (MeshType.Object == type) {
                     mesh && this.sceneService.addMesh(mesh);
                 }
@@ -69,5 +83,5 @@ export class LoadObjectService {
 
 
 
-    
+
 }

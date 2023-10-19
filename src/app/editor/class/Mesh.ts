@@ -21,6 +21,7 @@ export class Mesh implements MeshInterface {
     name!: string;
     loadLight!: boolean;
     type!: MeshType;
+    body: any;
 
     lightSpaceMatrix: any = new Float32Array(16);
     modelMatrix = new Float32Array(16);
@@ -70,8 +71,8 @@ export class Mesh implements MeshInterface {
                 shader.sendVec3N('objectColor', this.material.color)
             }
         }
-        this.modelCoordonate();
-
+        shaderI.coordonate && this.modelCoordonate(shaderI.coordonate);
+        !shaderI.coordonate && this.modelCoordonate();
         shader.setMat4('mWorld', this.modelMatrix);
         shader.setMat4('mView', shaderI.viewMatrix);
         shader.setMat4('mProj', shaderI.projMatrix);
@@ -99,14 +100,19 @@ export class Mesh implements MeshInterface {
         this.geometry && this.geometry.render();
     }
 
-    modelCoordonate() {
+    modelCoordonate(coordonate?: any) {
         mat4.identity(this.modelMatrix);
-        let poz: any = this.coordonate.position;
-
-        poz.x !== undefined ? mat4.translate(this.modelMatrix, this.modelMatrix, [poz.x, poz.y, poz.z]) :
-            mat4.translate(this.modelMatrix, this.modelMatrix, [poz[0], poz[1], poz[2]])
-        let scale: any = this.coordonate.scale;
-        mat4.scale(this.modelMatrix, this.modelMatrix, [scale.x, scale.y, scale.z])
+        if (coordonate) {
+            mat4.translate(this.modelMatrix, this.modelMatrix, [coordonate.x, coordonate.y, coordonate.z])
+        } else {
+            let poz: any = this.coordonate.position;
+            this.body && (poz = this.body.position)
+            this.body && (this.coordonate.position = this.body.position)
+            poz.x !== undefined ? mat4.translate(this.modelMatrix, this.modelMatrix, [poz.x, poz.y, poz.z]) :
+                mat4.translate(this.modelMatrix, this.modelMatrix, [poz[0], poz[1], poz[2]])
+            let scale: any = this.coordonate.scale;
+            mat4.scale(this.modelMatrix, this.modelMatrix, [scale.x, scale.y, scale.z])
+        }
     }
 
 }

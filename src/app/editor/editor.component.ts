@@ -13,9 +13,12 @@ import { GizmoService } from './service/gizmo.service';
 import { SceneService } from './service/scene.service';
 import { MeshType } from './interface/MeshInterface';
 import { Grid } from './class/Grid';
-import { glMatrix, mat4 } from 'gl-matrix';
+import { glMatrix, mat4, vec3 } from 'gl-matrix';
 import { Scene } from './interface/SceneInterface';
 import { LoadObjectService } from './service/load-object.service';
+import * as CANNON from 'cannon';
+import { CubeLine } from './class/CubeLine';
+import { Line } from './class/Line';
 
 @Component({
   selector: 'app-editor',
@@ -24,7 +27,7 @@ import { LoadObjectService } from './service/load-object.service';
 })
 export class EditorComponent implements AfterViewInit {
 
-
+  private world: CANNON.World;
 
   grid!: Grid;
   loader: any;
@@ -35,6 +38,7 @@ export class EditorComponent implements AfterViewInit {
   debugDepthQuad!: Shader;
   shaderGeometryPass!: Shader;
   shaderLightingPass!: Shader;
+  shaderCubLine!: Shader;
   @ViewChild('myCanvas', { static: true }) canvasRef!: ElementRef;
 
   width: any;
@@ -62,9 +66,10 @@ export class EditorComponent implements AfterViewInit {
 
   lastTimestamp = performance.now();
   frameCount = 0;
+  cubLine!: CubeLine;
 
   constructor(
-  
+
     private glService: OpenglService,
     private loadFile: LoadFileService,
     private loadObject: LoadObjectService,
@@ -73,7 +78,17 @@ export class EditorComponent implements AfterViewInit {
     private gizmoService: GizmoService,
     private sceneService: SceneService
   ) {
+    this.world = new CANNON.World();
+    this.world.gravity.set(0, -9.82, 0);
 
+    // const groundShape = new CANNON.Plane();
+    // const groundBody = new CANNON.Body({ mass: 0, shape: groundShape });
+
+    // // Setează poziția planului la (0, 0, 0)
+    // groundBody.position.set(0, 0, 0);
+
+    // // Adaugă planul la lumea Cannon.js
+    // this.world.addBody(groundBody);
   }
 
   ngOnInit(): void { }
@@ -90,7 +105,7 @@ export class EditorComponent implements AfterViewInit {
 
     this.glService.gl?.bindFramebuffer(this.glService.gl?.FRAMEBUFFER, null);
     this.gizmoService.init();
-    this.mousePickingService.init(this.loadObject.gizmo);
+    this.mousePickingService.init(this.loadObject.gizmo, this.world);
 
     this.grid = new Grid(this.glService, this.loadFile);
     this.grid.init();
@@ -112,9 +127,13 @@ export class EditorComponent implements AfterViewInit {
     this.shaderLightingPass = new Shader(this.glService.gl, this.loadFile);
     this.shaderLightingPass && this.shaderLightingPass.init("/assets/shader/deferred_shading.vs.glsl", "/assets/shader/deferred_shading.fs.glsl");
 
+    this.shaderCubLine = new Shader(this.glService.gl, this.loadFile);
+    this.shaderCubLine.init(
+      "/assets/shader-picking.vs.glsl",
+      "/assets/shader-picking.fs.glsl");
     this.glService.gl?.enable(this.glService.gl?.DEPTH_TEST);
 
-    this.loadObject.loadObject('assets/test12.glb', MeshType.Object);
+    this.loadObject.loadObject('assets/test1233.glb', MeshType.Object, this.world);
     this.loadObject.loadObject('assets/Light.glb', MeshType.Light);
     this.loadObject.loadObject('assets/giz.glb', MeshType.Gizmo);
 
@@ -265,12 +284,14 @@ export class EditorComponent implements AfterViewInit {
     this.renderFrameBuffer(this.gBuffer, () => {
       this.sceneService.getMeshs().forEach((_: any) => {
         _.renderDeferred(this.camera, { shader: this.shaderGeometryPass, viewMatrix: viewMatrix, projMatrix: projMatrix })
+
       });
     });
 
   }
 
   render(): void {
+    this.world.step(1 / 60);
     this.glService.glClear();
     let viewMatrix = new Float32Array(16);
     let projMatrix = new Float32Array(16);
@@ -281,9 +302,15 @@ export class EditorComponent implements AfterViewInit {
 
     //this.randareTextureDepthMap();
 
-    mat4.perspective(projMatrix, glMatrix.toRadian(60), this.glService.canvas.clientWidth / this.glService.canvas.clientHeight, 0.1, 100.0);
-    mat4.lookAt(viewMatrix, this.camera.cameraPos, this.camera.cameraFront, this.camera.cameraUp);
+    mat4.perspective(projMatrix, glMatrix.toRadian(45), this.glService.canvas.clientWidth / this.glService.canvas.clientHeight, 0.1, 100.0);
+
+    const vec: vec3 = vec3.create()
+
+    vec3.add(vec, this.camera.cameraPos, this.camera.cameraFront)
+    mat4.lookAt(viewMatrix, this.camera.cameraPos, vec, this.camera.cameraUp);
+
     this.gizmoService.setMatrix(projMatrix, viewMatrix);
+    this.mousePickingService.setMatrix(projMatrix, viewMatrix);
     this.randareGBuffer(projMatrix, viewMatrix);
 
     this.renderScene({ viewMatrix: viewMatrix, projMatrix: projMatrix, lightSpaceMatrix: lightSpaceMatrix });
@@ -299,49 +326,67 @@ export class EditorComponent implements AfterViewInit {
     lightSpaceMatrix: any
   }) {
     this.glService.glClear()
-    if (this.shaderLightingPass && this.shaderLightingPass.program) {
-      this.shaderLightingPass.useShader();
 
-      this.shaderLightingPass.sendInt('gPosition', 0);
-      this.shaderLightingPass.sendInt('gNormal', 1);
-      this.shaderLightingPass.sendInt('gAlbedoSpec', 2);
-      this.shaderLightingPass.sendInt('shadowMap', 3);
+    // if (this.shaderLightingPass && this.shaderLightingPass.program) {
+    //   this.shaderLightingPass.useShader();
 
-      this.shaderLightingPass.sendInt('nr_light', 3);
+    //   this.shaderLightingPass.sendInt('gPosition', 0);
+    //   this.shaderLightingPass.sendInt('gNormal', 1);
+    //   this.shaderLightingPass.sendInt('gAlbedoSpec', 2);
+    //   this.shaderLightingPass.sendInt('shadowMap', 3);
 
-      this.shaderLightingPass.sendVec3N('lights[0].Position', [1, 4, 1]);
-      this.shaderLightingPass.sendVec3N('lights[0].Color', [1, 1, 1]);
-      this.shaderLightingPass.sendFloat('lights[0].Linear', 0.14);
-      this.shaderLightingPass.sendFloat('lights[0].Quadratic', 0.07);
+    //   this.shaderLightingPass.sendInt('nr_light', 3);
+
+    //   this.shaderLightingPass.sendVec3N('lights[0].Position', [1, 4, 1]);
+    //   this.shaderLightingPass.sendVec3N('lights[0].Color', [1, 1, 1]);
+    //   this.shaderLightingPass.sendFloat('lights[0].Linear', 0.14);
+    //   this.shaderLightingPass.sendFloat('lights[0].Quadratic', 0.07);
 
 
 
-      this.shaderLightingPass.sendVec3N('lights[1].Position', [1, 4, 4]);
-      this.shaderLightingPass.sendVec3N('lights[1].Color', [1, 1, 1]);
-      this.shaderLightingPass.sendFloat('lights[1].Linear', 0.14);
-      this.shaderLightingPass.sendFloat('lights[1].Quadratic', 0.07);
+    //   this.shaderLightingPass.sendVec3N('lights[1].Position', [1, 4, 4]);
+    //   this.shaderLightingPass.sendVec3N('lights[1].Color', [1, 1, 1]);
+    //   this.shaderLightingPass.sendFloat('lights[1].Linear', 0.14);
+    //   this.shaderLightingPass.sendFloat('lights[1].Quadratic', 0.07);
 
-      this.shaderLightingPass.sendVec3N('lights[2].Position', [4, 4, 1]);
-      this.shaderLightingPass.sendVec3N('lights[2].Color', [1, 1, 1]);
-      this.shaderLightingPass.sendFloat('lights[2].Linear', 0.14);
-      this.shaderLightingPass.sendFloat('lights[2].Quadratic', 0.07);
+    //   this.shaderLightingPass.sendVec3N('lights[2].Position', [4, 4, 1]);
+    //   this.shaderLightingPass.sendVec3N('lights[2].Color', [1, 1, 1]);
+    //   this.shaderLightingPass.sendFloat('lights[2].Linear', 0.14);
+    //   this.shaderLightingPass.sendFloat('lights[2].Quadratic', 0.07);
 
-      matrix.lightSpaceMatrix && this.shaderLightingPass.setMat4('lightSpaceMatrix', matrix.lightSpaceMatrix);
-      this.shaderLightingPass.sendVec3V('viewPos', this.camera.cameraPos);
+    //   matrix.lightSpaceMatrix && this.shaderLightingPass.setMat4('lightSpaceMatrix', matrix.lightSpaceMatrix);
+    //   this.shaderLightingPass.sendVec3V('viewPos', this.camera.cameraPos);
 
-      this.glService.renderDebugDepthQuad([this.gPosition, this.gNormal, this.gAlbedoSpec, this.depthMap]);
-    }
+    //   this.glService.renderDebugDepthQuad([this.gPosition, this.gNormal, this.gAlbedoSpec, this.depthMap]);
+    // }
+
+    this.glService.gl?.clear(this.glService.gl.DEPTH_BUFFER_BIT);
     // this.sceneService.getMeshs().forEach((_: any) => {
-    //   _.renderForward(this.camera, { shader: this.shader, viewMatrix: matrix.viewMatrix, projMatrix: matrix.projMatrix }, this.depthMap, matrix.lightSpaceMatrix)
+    //   this.cubLine = new CubeLine(this.glService, _.geometry);
+    //   this.cubLine.render(this.shaderCubLine, _, matrix.viewMatrix, matrix.projMatrix);
     // });
+
+
+    this.sceneService.getMeshs().forEach((_: any) => {
+      _.renderForward(this.camera, { shader: this.shader, viewMatrix: matrix.viewMatrix, projMatrix: matrix.projMatrix }, this.depthMap, matrix.lightSpaceMatrix)
+    });
 
     if (this.mousePickingService.meshSelected) {
       this.glService.gl?.clear(this.glService.gl.DEPTH_BUFFER_BIT);
-      this.loadObject.gizmo && this.loadObject.gizmo.forEach(_ => {
-        _.coordonate.position &&
-          this.mousePickingService.meshSelected?.coordonate.position &&
-          (_.coordonate.position = this.mousePickingService.meshSelected?.coordonate.position)
-        _.renderForward(this.camera, { shader: this.shader, viewMatrix: matrix.viewMatrix, projMatrix: matrix.projMatrix })
+      this.loadObject.gizmo && this.loadObject.gizmo.forEach((_, index) => {
+        let coordonate: { x: any, y: any, z: any } = { x: 0, y: 0, z: 0 }
+        if (_.coordonate.position &&
+          this.mousePickingService.meshSelected?.coordonate.position) {
+
+          coordonate.x = this.mousePickingService.meshSelected?.coordonate.position.x + _.coordonate.position.x;
+          coordonate.y = this.mousePickingService.meshSelected?.coordonate.position.y + _.coordonate.position.y;
+          coordonate.z = this.mousePickingService.meshSelected?.coordonate.position.z + _.coordonate.position.z;
+
+        }
+
+        _.renderForward(this.camera, { shader: this.shader, viewMatrix: matrix.viewMatrix, projMatrix: matrix.projMatrix, coordonate: coordonate })
+        // this.cubLine = new CubeLine(this.glService, _.geometry);
+        // this.cubLine.render(this.shaderCubLine, _, matrix.viewMatrix, matrix.projMatrix, coordonate);
       });
     }
   }

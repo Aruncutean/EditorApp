@@ -14,4 +14,5 @@ export interface MeshInterface {
     name: string;
     type: MeshType;
     loadLight: boolean;
+    body: any;
 }

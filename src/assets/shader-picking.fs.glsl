@@ -1,6 +1,7 @@
+#version 300 es
 precision mediump float;
-varying vec4 PickingColorOut;
-
+in vec4 PickingColorOut;
+out vec4 FragColor;
 void main() {
-    gl_FragColor = PickingColorOut;
+    FragColor = PickingColorOut;
 }

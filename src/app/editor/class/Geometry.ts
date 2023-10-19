@@ -6,6 +6,10 @@ export class Geometry {
     idUV: any;
     idN: any;
     vao: any;
+
+    minPoint = { x: Infinity, y: Infinity, z: Infinity };
+    maxPoint = { x: -Infinity, y: -Infinity, z: -Infinity };
+
     constructor(private geometry: GeometryInterface, private glService: OpenglService) {
         this.vao = this.glService.gl.createVertexArray();
         this.glService.gl.bindVertexArray(this.vao);
@@ -14,6 +18,7 @@ export class Geometry {
         this.idUV = this.glService.gl?.createBuffer();
         this.idN = this.glService.gl?.createBuffer();
 
+        this.getMinMaxPoint(geometry.vertices);
         this.glService.gl?.bindBuffer(this.glService.gl.ARRAY_BUFFER, this.idV);
         this.glService.gl?.bufferData(this.glService.gl.ARRAY_BUFFER, new Float32Array(geometry.vertices), this.glService.gl.STATIC_DRAW);
         this.glService.gl?.enableVertexAttribArray(0);
@@ -41,6 +46,38 @@ export class Geometry {
         this.glService.gl.bindVertexArray(this.vao)
         this.glService.gl?.drawElements(this.glService.gl?.TRIANGLES, this.geometry.indices.length, this.glService.gl?.UNSIGNED_SHORT, 0);
         this.glService.gl.bindVertexArray(null)
+    }
+
+    getMinMaxPoint(vertices: any[]) {
+        for (let i = 0; i < vertices.length; i += 3) {
+            let x = vertices[i];
+            let y = vertices[i + 1];
+            let z = vertices[i + 2];
+
+            // Pentru axa x
+            if (x < this.minPoint.x) {
+                this.minPoint.x = x;
+            }
+            if (x > this.maxPoint.x) {
+                this.maxPoint.x = x;
+            }
+
+            // Pentru axa y
+            if (y < this.minPoint.y) {
+                this.minPoint.y = y;
+            }
+            if (y > this.maxPoint.y) {
+                this.maxPoint.y = y;
+            }
+
+            // Pentru axa z
+            if (z < this.minPoint.z) {
+                this.minPoint.z = z;
+            }
+            if (z > this.maxPoint.z) {
+                this.maxPoint.z = z;
+            }
+        }
     }
 
 }

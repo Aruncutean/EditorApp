@@ -10,8 +10,8 @@ export class OpenglService {
 
   gl: WebGLRenderingContext | any;
 
-  yaw: number = 150;
-  pitch: number = 40;
+  yaw: number = -90;
+  pitch: number = 0;
 
   lastX: number = 0;
   lastY: number = 0;
@@ -33,20 +33,21 @@ export class OpenglService {
     let isDragging = false;
     this.canvas = canvasRef.nativeElement;
     let radius = this.camera.fieldOfView;
-    var direction: vec3 = [0, 0, 0];
-    direction[0] = radius * Math.cos(glMatrix.toRadian(this.yaw)) * Math.cos(glMatrix.toRadian(this.pitch))
-    direction[1] = radius * Math.sin(glMatrix.toRadian(this.pitch))
-    direction[2] = radius * Math.sin(glMatrix.toRadian(this.yaw)) * Math.cos(glMatrix.toRadian(this.pitch))
-    vec3.add(this.camera.cameraPos, direction, this.camera.cameraFront);
+    // var direction: vec3 = [0, 0, 0];
+    // direction[0] = radius * Math.cos(glMatrix.toRadian(this.yaw)) * Math.cos(glMatrix.toRadian(this.pitch))
+    // direction[1] = radius * Math.sin(glMatrix.toRadian(this.pitch))
+    // direction[2] = radius * Math.sin(glMatrix.toRadian(this.yaw)) * Math.cos(glMatrix.toRadian(this.pitch))
+    // vec3.add(this.camera.cameraPos, direction, this.camera.cameraFront);
+
     window.addEventListener('keyup', (event) => {
       this.keys[event.key] = false;
-      //this.camera.precessInput(this.keys)
+      this.camera.precessInput(this.keys)
     });
 
     window.addEventListener('keydown', (event) => {
       this.keys[event.key] = true;
 
-      //  this.camera.precessInput(this.keys)
+      this.camera.precessInput(this.keys)
     })
 
     this.canvas.addEventListener('mousedown', (event) => {
@@ -64,15 +65,6 @@ export class OpenglService {
 
     this.canvas.addEventListener('mousemove', (event) => {
 
-      // if (this.keys["Shift"] == true && isDragging) {
-
-      //   // const deltaX = event.clientX - previousMouseX;
-      //   // const deltaY = event.clientY - previousMouseY;
-      //   // this.camera.cameraPos[0] -= deltaX * 0.0001
-      //   // this.camera.cameraPos[1] += deltaY * 0.0001
-      //   // this.camera.cameraFront[0] -= deltaX * 0.0001
-      //   // this.camera.cameraFront[1] += deltaY * 0.0001
-      // } else {
       const x: number = event.clientX - this.canvas.getBoundingClientRect().left;
       const y: number = event.clientY - this.canvas.getBoundingClientRect().top;
 
@@ -99,33 +91,42 @@ export class OpenglService {
       if (this.pitch < -89.0) {
         this.pitch = -89.0;
       }
-      let radius = this.camera.fieldOfView;
-      var direction: vec3 = [0, 0, 0];
-      direction[0] = radius * Math.cos(glMatrix.toRadian(this.yaw)) * Math.cos(glMatrix.toRadian(this.pitch))
-      direction[1] = radius * Math.sin(glMatrix.toRadian(this.pitch))
-      direction[2] = radius * Math.sin(glMatrix.toRadian(this.yaw)) * Math.cos(glMatrix.toRadian(this.pitch))
-      vec3.add(this.camera.cameraPos, direction, this.camera.cameraFront);
-      //vec3.normalize(this.camera.cameraFront, direction);
-      //}
-    })
-    this.canvas.addEventListener("wheel", (event) => {
-      const delta = event.deltaY;
-      var sensitivity = 0.1;
-      if (delta > 0) {
-        // Zoom out
-
-        this.camera.fieldOfView += 5.0 * sensitivity;
-      } else {
-        // Zoom in
-        this.camera.fieldOfView -= 5.0 * sensitivity;
+      if (!this.isMousePressed) {
+        return;
       }
-      let radius = this.camera.fieldOfView;
+      // let radius = this.camera.fieldOfView;
+      // var direction: vec3 = [0, 0, 0];
+      // direction[0] = radius * Math.cos(glMatrix.toRadian(this.yaw)) * Math.cos(glMatrix.toRadian(this.pitch))
+      // direction[1] = radius * Math.sin(glMatrix.toRadian(this.pitch))
+      // direction[2] = radius * Math.sin(glMatrix.toRadian(this.yaw)) * Math.cos(glMatrix.toRadian(this.pitch))
+      // vec3.add(this.camera.cameraPos, direction, this.camera.cameraFront);
+
       var direction: vec3 = [0, 0, 0];
-      direction[0] = radius * Math.cos(glMatrix.toRadian(this.yaw)) * Math.cos(glMatrix.toRadian(this.pitch))
-      direction[1] = radius * Math.sin(glMatrix.toRadian(this.pitch))
-      direction[2] = radius * Math.sin(glMatrix.toRadian(this.yaw)) * Math.cos(glMatrix.toRadian(this.pitch))
-      vec3.add(this.camera.cameraPos, direction, this.camera.cameraFront);
-    });
+      direction[0] = Math.cos(glMatrix.toRadian(this.yaw)) * Math.cos(glMatrix.toRadian(this.pitch))
+      direction[1] = Math.sin(glMatrix.toRadian(this.pitch))
+      direction[2] = Math.sin(glMatrix.toRadian(this.yaw)) * Math.cos(glMatrix.toRadian(this.pitch))
+
+      vec3.normalize(this.camera.cameraFront, direction);
+
+    })
+    // this.canvas.addEventListener("wheel", (event) => {
+    //   const delta = event.deltaY;
+    //   var sensitivity = 0.1;
+    //   if (delta > 0) {
+    //     // Zoom out
+
+    //     this.camera.fieldOfView += 5.0 * sensitivity;
+    //   } else {
+    //     // Zoom in
+    //     this.camera.fieldOfView -= 5.0 * sensitivity;
+    //   }
+    //   let radius = this.camera.fieldOfView;
+    //   var direction: vec3 = [0, 0, 0];
+    //   direction[0] = radius * Math.cos(glMatrix.toRadian(this.yaw)) * Math.cos(glMatrix.toRadian(this.pitch))
+    //   direction[1] = radius * Math.sin(glMatrix.toRadian(this.pitch))
+    //   direction[2] = radius * Math.sin(glMatrix.toRadian(this.yaw)) * Math.cos(glMatrix.toRadian(this.pitch))
+    //   vec3.add(this.camera.cameraPos, direction, this.camera.cameraFront);
+    // });
     this.canvas.addEventListener('mousedown', (event) => {
       if (event.button == 1) {
         this.isMousePressed = true;

@@ -87,11 +87,6 @@ export class GizmoService {
                         let mouseRay: vec3 = [rayWorld[0], rayWorld[1], rayWorld[2]];
                         vec3.normalize(mouseRay, mouseRay);
 
-
-                        console.log(mouseRay);
-
-                
-
                         // this.mousePickingService.meshSelected.coordonate.position.y += mouseRay[1] * 0.05;
                         // this.mousePickingService.meshSelected.coordonate.position.z += mouseRay[2] * 0.05;
                         if (this.camera.cameraFront[2] > 0) {
