@@ -3,8 +3,8 @@ import { Euler } from "three";
 
 export interface CoordonateInerface {
     position: Position,
-    rotation: Euler,
-    scale: vec3,
+    rotation: Position,
+    scale: Position,
 }
 
 export interface Position {

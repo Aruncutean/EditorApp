@@ -38,6 +38,8 @@ export class MousePickingService {
     viewMatrix: any;
     rayStart: any;
 
+    gizmoType: any;
+
     constructor(private glService: OpenglService,
         private camera: CameraService,
         private loadFile: LoadFileService,
@@ -90,7 +92,7 @@ export class MousePickingService {
         vec3.sub(rayDir, rayEnd, rayOrigin);
         vec3.normalize(rayDir, rayDir);
 
-        let endPoit: vec3 = [100, 100, 100];
+        let endPoit: vec3 = [5, 5, 5];
         vec3.mul(endPoit, endPoit, rayDir)
         vec3.add(endPoit, rayOrigin, endPoit);
 
@@ -124,6 +126,9 @@ export class MousePickingService {
 
     }
 
+    setGizmoType(type: any) {
+        this.gizmoType = type;
+    }
 
     mouseUp() {
         this.glService.canvas && this.glService.canvas.addEventListener('mouseup', (event) => {
@@ -144,7 +149,7 @@ export class MousePickingService {
 
                 let disMin = Infinity;
                 let giz = undefined;
-                this.gizmo && this.gizmo.forEach(_ => {
+                this.gizmoType == 2 && this.gizmo && this.gizmo.forEach(_ => {
                     let coordonate: { x: any, y: any, z: any } = { x: 0, y: 0, z: 0 }
                     if (_.coordonate.position &&
                         this.meshSelected?.coordonate.position) {

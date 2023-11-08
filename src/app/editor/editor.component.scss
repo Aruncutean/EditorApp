@@ -95,3 +95,40 @@
 .example-menu-item:active {
   background-color: rgb(170, 170, 170);
 }
+
+
+.gizmo {
+  padding: 10px;
+  margin: 11px;
+
+  z-index: 3;
+  background: #1d1d1d;
+  position: absolute;
+  display: flex;
+  border-radius: 15px;
+  flex-direction: column;
+  align-content: center;
+  align-items: center;
+
+  .item {
+    display: flex;
+    align-items: center;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    background: #1d1d1d;
+    width: 25px;
+    height: 25px;
+  }
+
+  .item:hover {
+    background-color: #303030;
+    outline: 2px solid #303030;
+    outline-style: auto;
+  }
+
+  .item.active {
+    background-color: #303030;
+    outline: 2px solid #303030;
+    outline-style: auto;
+  }
+}

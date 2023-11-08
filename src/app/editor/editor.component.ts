@@ -67,7 +67,7 @@ export class EditorComponent implements AfterViewInit {
   lastTimestamp = performance.now();
   frameCount = 0;
   cubLine!: CubeLine;
-
+  gizmoType = 1;
   constructor(
 
     private glService: OpenglService,
@@ -133,9 +133,9 @@ export class EditorComponent implements AfterViewInit {
       "/assets/shader-picking.fs.glsl");
     this.glService.gl?.enable(this.glService.gl?.DEPTH_TEST);
 
-    this.loadObject.loadObject('assets/test1233.glb', MeshType.Object, this.world);
+    this.loadObject.loadObject('assets/test12.glb', MeshType.Object, this.world);
     this.loadObject.loadObject('assets/Light.glb', MeshType.Light);
-    this.loadObject.loadObject('assets/giz.glb', MeshType.Gizmo);
+    this.loadObject.loadObject('assets/giz2.glb', MeshType.Gizmo);
 
     this.sceneService.data$.subscribe((_: Scene) => {
       this.dirLight = _.dirLight;
@@ -220,6 +220,45 @@ export class EditorComponent implements AfterViewInit {
 
   addLight() {
     this.loadObject.loadObject('assets/Light.glb', MeshType.Light);
+  }
+
+  addMesh(type: any) {
+    switch (type) {
+      case "Cub":
+        this.loadObject.loadObject('assets/mesh/cub.glb', MeshType.Object, this.world);
+        break;
+      case "UVSphere":
+        this.loadObject.loadObject('assets/mesh/Sphere.glb', MeshType.Object, this.world);
+        break;
+      case "Plane":
+        this.loadObject.loadObject('assets/mesh/plane.glb', MeshType.Object, this.world);
+        break;
+      default:
+        break;
+    }
+  }
+
+  changeGiz(type: any) {
+    switch (type) {
+      case "1":
+        this.gizmoType = 1;
+        this.mousePickingService.setGizmoType(1);
+        break
+      case "2":
+        this.gizmoType = 2;
+        this.mousePickingService.setGizmoType(2);
+        break
+      case "3":
+        this.gizmoType = 3;
+        this.mousePickingService.setGizmoType(3);
+        break;
+      case "4":
+        this.gizmoType = 4;
+        this.mousePickingService.setGizmoType(4);
+        break
+      default:
+        break;
+    }
   }
 
   renderFrameBuffer(buffer: any, interiorCode: Function) {
@@ -371,7 +410,7 @@ export class EditorComponent implements AfterViewInit {
       _.renderForward(this.camera, { shader: this.shader, viewMatrix: matrix.viewMatrix, projMatrix: matrix.projMatrix }, this.depthMap, matrix.lightSpaceMatrix)
     });
 
-    if (this.mousePickingService.meshSelected) {
+    if (this.mousePickingService.meshSelected && this.gizmoType == 2) {
       this.glService.gl?.clear(this.glService.gl.DEPTH_BUFFER_BIT);
       this.loadObject.gizmo && this.loadObject.gizmo.forEach((_, index) => {
         let coordonate: { x: any, y: any, z: any } = { x: 0, y: 0, z: 0 }

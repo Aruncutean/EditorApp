@@ -43,7 +43,7 @@ export class LoadObjectService {
                         },
                         {
                             position: { x: _.position.x, y: _.position.y, z: _.position.z },
-                            rotation: _.rotation,
+                            rotation: { x: _.rotation._x, y: _.rotation._y, z: _.rotation._z },
                             scale: _.scale
                         },
                         this.glService,
@@ -73,7 +73,7 @@ export class LoadObjectService {
                 };
 
                 (MeshType.Gizmo == type) && mesh && this.gizmo.push(mesh);
-              
+
                 if (MeshType.Object == type) {
                     mesh && this.sceneService.addMesh(mesh);
                 }

@@ -1,4 +1,4 @@
-<div style="height: 500px; height: calc(100vh - 60px)">
+<div style="height: 500px; height: calc(100vh - 60px); position: absolute">
   <as-split direction="horizontal">
     <as-split-area [size]="70" style="overflow: unset">
       <div style="overflow: unset">
@@ -27,9 +27,46 @@
 </div>
 <ng-template #inner>
   <div class="example-menu" cdkMenu>
+    <button class="example-menu-item" cdkMenuItem (click)="addMesh('Cub')">
+      Cub
+    </button>
+    <button class="example-menu-item" cdkMenuItem (click)="addMesh('UVSphere')">
+      UV Sphere
+    </button>
+    <button class="example-menu-item" cdkMenuItem (click)="addMesh('Plane')">
+      Plane
+    </button>
+    <hr />
     <button class="example-menu-item" cdkMenuItem (click)="addLight()">
       Add Light
     </button>
   </div>
 </ng-template>
+
+<div class="gizmo">
+  <img
+    class="item"
+    src="assets/svg/cursor-svgrepo-com.svg "
+    (click)="changeGiz('1')"
+    [class.active]="gizmoType == 1"
+  />
+  <img
+    class="item"
+    src="assets/svg/coordinates-svgrepo-com.svg "
+    (click)="changeGiz('2')"
+    [class.active]="gizmoType == 2"
+  />
+  <img
+    class="item"
+    src="assets/svg/crop-svgrepo-com.svg "
+    (click)="changeGiz('3')"
+    [class.active]="gizmoType == 3"
+  />
+  <img
+    class="item"
+    src="assets/svg/mirror-horizontally-svgrepo-com.svg "
+    (click)="changeGiz('4')"
+    [class.active]="gizmoType == 4"
+  />
+</div>
 <!-- <button class="btn" (click)="saveTexture()">Save</button> -->

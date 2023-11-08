@@ -151,10 +151,7 @@ export class OpenglService {
       console.error('EXT_color_buffer_float is not supported');
 
     }
-
-
   }
-
 
   generateBuffer() {
     let buffer: any = this.gl.createFramebuffer();

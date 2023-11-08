@@ -31,7 +31,7 @@ export class ObjectPropComponent implements OnInit, AfterViewInit {
 
 
   ngOnInit(): void {
- 
+
   }
 
   setValue() {
@@ -39,14 +39,14 @@ export class ObjectPropComponent implements OnInit, AfterViewInit {
       xLocation: Number(this.mousePicker.meshSelected.coordonate.position.x.toFixed(2)),
       yLocation: Number(this.mousePicker.meshSelected.coordonate.position.y.toFixed(2)),
       zLocation: Number(this.mousePicker.meshSelected.coordonate.position.z.toFixed(2)),
-      xRotation: 0,
-      yRotation: 0,
-      zRotation: 0,
-      xScale: 0,
-      yScale: 0,
-      zScale: 0
+      xRotation: Number(this.mousePicker.meshSelected.coordonate.rotation.x.toFixed(2)),
+      yRotation: Number(this.mousePicker.meshSelected.coordonate.rotation.y.toFixed(2)),
+      zRotation: Number(this.mousePicker.meshSelected.coordonate.rotation.z.toFixed(2)),
+      xScale: Number(this.mousePicker.meshSelected.coordonate.scale.x.toFixed(2)),
+      yScale: Number(this.mousePicker.meshSelected.coordonate.scale.y.toFixed(2)),
+      zScale: Number(this.mousePicker.meshSelected.coordonate.scale.z.toFixed(2))
     })
-   // this.cdr && this.cdr.detectChanges();
+    // this.cdr && this.cdr.detectChanges();
   }
 
   ngAfterViewInit(): void {
@@ -62,6 +62,14 @@ export class ObjectPropComponent implements OnInit, AfterViewInit {
       this.mousePicker.meshSelected.coordonate.position.x = Number(this.transformForm.controls["xLocation"].value);
       this.mousePicker.meshSelected.coordonate.position.y = Number(this.transformForm.controls["yLocation"].value);
       this.mousePicker.meshSelected.coordonate.position.z = Number(this.transformForm.controls["zLocation"].value);
+
+      this.mousePicker.meshSelected.coordonate.rotation.x = Number(this.transformForm.controls["xRotation"].value);
+      this.mousePicker.meshSelected.coordonate.rotation.y = Number(this.transformForm.controls["yRotation"].value);
+      this.mousePicker.meshSelected.coordonate.rotation.z = Number(this.transformForm.controls["zRotation"].value);
+
+      this.mousePicker.meshSelected.coordonate.scale.x = Number(this.transformForm.controls["xScale"].value);
+      this.mousePicker.meshSelected.coordonate.scale.y = Number(this.transformForm.controls["yScale"].value);
+      this.mousePicker.meshSelected.coordonate.scale.z = Number(this.transformForm.controls["zScale"].value);
     }
   }
 }

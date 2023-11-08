@@ -112,6 +112,11 @@ export class Mesh implements MeshInterface {
                 mat4.translate(this.modelMatrix, this.modelMatrix, [poz[0], poz[1], poz[2]])
             let scale: any = this.coordonate.scale;
             mat4.scale(this.modelMatrix, this.modelMatrix, [scale.x, scale.y, scale.z])
+
+            let rotation: any = this.coordonate.rotation;
+            mat4.rotateX(this.modelMatrix, this.modelMatrix, rotation.x * Math.PI / 180)
+            mat4.rotateY(this.modelMatrix, this.modelMatrix, rotation.y * Math.PI / 180)
+            mat4.rotateZ(this.modelMatrix, this.modelMatrix, rotation.z * Math.PI / 180)
         }
     }
 
